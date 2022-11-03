@@ -7,12 +7,12 @@ const defaultNotes = [
     {
         title: 'Shopping',
         value: 'Milk, bread, butter',
-        date: '15.8.22 13:00'
+        date: '15.08.22 13:00'
     },
     {
         title: 'Todo list',
         value: 'Check mail, write code, be happy',
-        date: '06.9.22 16:43'
+        date: '06.09.22 16:43'
     }
 ]
 

@@ -4,18 +4,40 @@
     <CirclesBackground/>
 
     <div class="container" v-cloak>
-      <div class="main-block notes-list-cont">
 
-        <div class="header">
+      <!-- Блок со списком заметок -->
+      <div class="main-block notes-list-cont">
+        <div class="block-header">
           <div class="header-half">
             <h1>Notes</h1>
           </div>
           <div class="header-half right-half">
-            <div class="circle-button">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
+
+            <!-- Выпадающий список сортировки -->
+            <div class="dropdown" @click="dropdownHandler">
+              <div class="dropdown-header">
+                <div class="circle-button">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+              </div>
+              <div v-if="isDropdown" class="dropdown-body">
+                <div class="drop-title">
+                  <p>Sort by:</p>
+                </div>
+                <div class="drop-item" @click="changeSort('Default')">
+                  <p>Default</p>
+                </div>
+                <div class="drop-item" @click="changeSort('Date')">
+                  <p>Date</p>
+                </div>
+                <div class="drop-item" @click="changeSort('Alphabet')">
+                  <p>Alphabet</p>
+                </div>
+              </div>
             </div>
+            
           </div>
         </div>
 
@@ -30,11 +52,10 @@
             :checkBox="isEdit"
             :index="index"
             @changeSelection="updateSelectedList"
-            
           />
         </div>
 
-        <div class="footer">
+        <div class="block-footer">
           <div class="edit-button" @click="editNotesList">
             <p v-if="!isEdit">
               Edit
@@ -46,10 +67,10 @@
           <div class="circle-button add-button" @click="addNoteHandler">
             <p>+</p>
           </div>
-          
         </div>
       </div>
 
+      <!-- Блок редактирования -->
       <div class="main-block text-input-cont">
         <div class="cont-top" v-if="!isEmpty">
           <div class="header-half">
@@ -63,7 +84,7 @@
           <textarea v-model="currentNote.value"></textarea>
         </div>
 
-        <div class="footer" id="right-footer" v-if="!isEmpty">
+        <div class="block-footer" id="right-footer" v-if="!isEmpty">
           <div class="circle-button delete-button" @click="deleteNoteHandler">
             <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="delete-icon">
               <path class="delete-icon"
@@ -74,8 +95,8 @@
             </svg>
           </div>
         </div>
-
       </div>
+
     </div>
   </div>
 </template>
@@ -85,6 +106,26 @@ import NoteItem from './components/NoteItem.vue'
 import CirclesBackground from './components/CirclesBackground.vue'
 
 const defaultNotes = require('./components/default_notes')
+
+// Сортировка заметок по алфавиту
+function byTitle(title) {
+  return (a, b) => a[title] > b[title] ? 1 : -1;
+}
+
+// Сортировка по убыванию даты
+function byDate(date) {
+  return (a, b) => 
+    new Date(formateDate(a[date])) > new Date(formateDate(b[date])) ? -1 : 1
+  }
+
+function formateDate(date) {
+
+  let dd = date.substring(0,3)
+  let mm = date.substring(3,6)
+  let formatedDate = mm + dd + date.slice(6) + ':00'
+
+  return formatedDate
+}
 
 export default {
   name: 'App',
@@ -97,11 +138,12 @@ export default {
       isFetched: false,
       allNotes: defaultNotes,
       currentNote: defaultNotes[0],
+      defaultSoretd: [], // Временный список заметок при изменении сортировки
       currentIndex: 0,
       isEmpty: false,
       isEdit: false, // Множественный выбор
       itemsForEdit: [], // Выбранные заметки
-      newAdded: false
+      isDropdown: false
     }
   },
   async created() {
@@ -164,6 +206,25 @@ export default {
     updateSelectedList(isSelected) {
       this.itemsForEdit.push(isSelected.index)
     },
+    dropdownHandler() {
+      this.isDropdown = !this.isDropdown
+    },
+    changeSort(type) {
+      switch (type) {
+        case 'Default':
+          if(this.defaultSoretd.length > 0)
+            this.allNotes = [...this.defaultSoretd]
+          break;
+        case 'Date':
+          this.defaultSoretd = [...this.allNotes]
+          this.allNotes.sort(byDate('date'))
+          break;
+        case 'Alphabet':
+          this.defaultSoretd = [...this.allNotes]
+          this.allNotes.sort(byTitle('title'))
+          break;
+      }
+    },
     getDate() {
       let currentDate = new Date();
       let dd = String(currentDate.getDate()).padStart(2, '0')
@@ -172,7 +233,7 @@ export default {
       let hrs = String(currentDate.getHours()).padStart(2, '0')
       let min = String(currentDate.getMinutes()).padStart(2, '0')
       currentDate =  dd + '.' + mm + '.' + yy + ' ' + hrs + ':' + min
-      return(currentDate)
+      return currentDate 
     }
   }
 }
@@ -234,7 +295,7 @@ body {
   margin-right: 25px;
 }
 
-.header {
+.block-header {
   position: relative;
   display: flex;
   align-items: center;
@@ -321,6 +382,67 @@ body {
   background: #D39800;
 }
 
+.dropdown {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 152px;
+  height: fit-content;
+  z-index: 5;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: fit-content;
+}
+
+.dropdown-body {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 36px;
+  width: 100%;
+  height: 132px;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-body p {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 300;
+  font-size: 16px;
+  color: #000;
+}
+
+.drop-title {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  width: 85%;
+  border-bottom: 1px solid #ECECEC;
+}
+
+.drop-item {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  width: 85%;
+  cursor: pointer;
+  border-radius: 5px;
+  padding-left: 4px;
+}
+
+.drop-item:hover {
+  background-color: #f3f3f3;
+}
+
 .search {
   position: relative;
   display: flex;
@@ -368,7 +490,7 @@ input:focus {
   margin-top: 10px;
 }
 
-.footer {
+.block-footer {
   position: absolute;
   bottom: 0;
   display: flex;
