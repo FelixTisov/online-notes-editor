@@ -42,7 +42,7 @@
         </div>
 
         <div class="search">
-          <input placeholder="Search..."/>
+          <input @input="searchItem" placeholder="Search...">
         </div>
 
         <div class="items-cont" v-for:="(note, index) in allNotes">
@@ -74,14 +74,21 @@
       <div class="main-block text-input-cont">
         <div class="cont-top" v-if="!isEmpty">
           <div class="header-half">
-            <input placeholder="Enter the title..." type="text" v-model="currentNote.title"/>
+            <input 
+              placeholder="Enter the title..." 
+              type="text" 
+              v-model="currentNote.title" 
+              @change="checkChanged"/>
           </div>
           <div class="header-half right-half">
             <p>{{currentNote.date}}</p>
           </div>
         </div>
         <div class="text-cont" v-if="!isEmpty">
-          <textarea v-model="currentNote.value"></textarea>
+          <textarea 
+            v-model="currentNote.value"
+            @change="checkChanged"
+          ></textarea>
         </div>
 
         <div class="block-footer" id="right-footer" v-if="!isEmpty">
@@ -138,12 +145,14 @@ export default {
       isFetched: false,
       allNotes: defaultNotes,
       currentNote: defaultNotes[0],
-      defaultSoretd: [], // Временный список заметок при изменении сортировки
+      defaultSorted: [], // Временный список заметок при изменении сортировки
       currentIndex: 0,
       isEmpty: false,
       isEdit: false, // Множественный выбор
       itemsForEdit: [], // Выбранные заметки
-      isDropdown: false
+      isDropdown: false,
+      search: '', // Подстрока для поиска заметок
+      hasChanged: false // Заметка была изменена
     }
   },
   async created() {
@@ -160,10 +169,15 @@ export default {
     }
 
     this.allNotes[0].value = await generateText()
-    // Если запрос завершился
+    // Запрос выполнен
     this.isFetched = true
+
+    // Сохраняет дефолтную сортировку
+    this.defaultSorted = [...this.allNotes]
+    
   },
   methods: {
+    // Открыть заметку
     setCurrentNote(index) {
       
       // Если пустая заметка не изменена, удалить ее
@@ -177,8 +191,9 @@ export default {
         this.currentIndex = index
       }
       this.isEmpty = false
-      
+      this.hasChanged = false
     },
+    // Добавить новую заметку
     addNoteHandler() {
       if(this.currentNote.value.length !== 0 || this.currentNote.title.length !== 0) {
         this.allNotes.unshift({title: '', value: '', date: this.getDate()})
@@ -186,6 +201,7 @@ export default {
         this.isEmpty = false
       }
     },
+    // Удалить заметку
     deleteNoteHandler() {
       // Для оной заметки
       if(!this.isEdit) {
@@ -199,32 +215,57 @@ export default {
         this.isEmpty = true
         this.isEdit = false
       }
+      this.defaultSorted = [...this.allNotes]
     },
+    // Если новая заметка больше не пустая
     editNotesList() {
       this.isEdit = !this.isEdit
     },
+    // Выбрать несколько заметок
     updateSelectedList(isSelected) {
       this.itemsForEdit.push(isSelected.index)
     },
+    // Открыть или закрыть выпадающий список
     dropdownHandler() {
       this.isDropdown = !this.isDropdown
     },
+    // Изменить сортировку заметок
     changeSort(type) {
       switch (type) {
         case 'Default':
-          if(this.defaultSoretd.length > 0)
-            this.allNotes = [...this.defaultSoretd]
+          if(this.defaultSorted.length > 0)
+            this.allNotes = [...this.defaultSorted]
           break;
         case 'Date':
-          this.defaultSoretd = [...this.allNotes]
           this.allNotes.sort(byDate('date'))
           break;
         case 'Alphabet':
-          this.defaultSoretd = [...this.allNotes]
           this.allNotes.sort(byTitle('title'))
           break;
       }
     },
+    // Поиск заметки по названию
+    searchItem(event) {
+      this.allNotes = []
+      this.defaultSorted.forEach(item => {
+        // Входит ли строка в тайтл какого-либо элемента массива
+        if(item.title.toLowerCase().indexOf(event.target.value.toLowerCase()) + 1) {
+          this.allNotes.unshift(item)
+        }
+      })
+    },
+    // Если заметка изменена, переместить ее в начало списка
+    checkChanged() {
+      if(!this.hasChanged) {
+        let forReplace = this.allNotes.splice(this.currentIndex, 1)
+        forReplace[0].date = this.getDate()
+        this.allNotes.unshift(forReplace[0])
+        this.hasChanged = true
+        this.defaultSorted = [...this.allNotes]
+        this.setCurrentNote(0)
+      }
+    },
+    // Получить текущую дату
     getDate() {
       let currentDate = new Date();
       let dd = String(currentDate.getDate()).padStart(2, '0')
@@ -239,19 +280,18 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400&display=swap');
+@import './assets/variables.scss';
 
 body {
   margin: 0;
 }
 
 .wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+  @extend %cont-shared;
   position: absolute;
+  flex-direction: row;
   height: 100%;
   width: 100%;
   background: linear-gradient(103.84deg, #537FC2 6.25%, #5CC8C1 90.1%);
@@ -259,12 +299,10 @@ body {
 }
 
 .container {
-  margin: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+  @extend %cont-shared;
   position: absolute;
+  margin: 0;
+  flex-direction: row;
   height: 100%;
   width: 100%;
   max-width: 3840px;
@@ -272,15 +310,12 @@ body {
 }
 
 .main-block {
-  position: relative;
-  display: flex;
+  @extend %cont-shared;
   flex-direction: column;
-  align-items: center;
   justify-content: flex-start;
   height: 90.5%;
-  background: #FFFFFF;
+  background: white;
   border-radius: 20px;
-
 }
 
 .notes-list-cont {
@@ -296,10 +331,7 @@ body {
 }
 
 .block-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @extend %cont-shared;
   height: 76px;
   width: 100%;
 }
@@ -310,44 +342,37 @@ body {
   justify-content: flex-start;
   height: 100%;
   width: 45%;
-  /* border: 1px solid black; */
-}
 
-.header-half input {
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 24px;
-  color: #000;
-}
+  input {
+    @extend %primary-font;
+    font-weight: 400;
+    font-size: 24px;
 
-.header-half input:focus {
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 24px;
-  color: #000;
-  outline: none;
-}
+    &:focus {
+      @extend %primary-font;
+      font-weight: 400;
+      font-size: 24px;
+      outline: none;
+    }
 
-.header-half input::placeholder {
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 300;
-  font-size: 24px;
-  color: #8A8A8A;
+    &::placeholder {
+      @extend %primary-font;
+      font-weight: 300;
+      font-size: 24px;
+      color: $light-gray;
+    }
+  }
 }
 
 .right-half {
   justify-content: flex-end;
-}
 
-.right-half p {
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 300;
-  font-size: 16px;
-  color: #8A8A8A;
+  p {
+    @extend %primary-font;
+    font-weight: 300;
+    font-size: 16px;
+    color: $light-gray;
+  }
 }
 
 .circle-button {
@@ -360,15 +385,15 @@ body {
   left: 457px;
   top: 64px;
   border-radius: 100%;
-  border: 1px solid #D39800;
-}
+  border: 1px solid $dirty-orange;
 
-.circle-button:hover {
-  background-color: #D39800;
-}
+  &:hover {
+    background-color: $dirty-orange;
 
-.circle-button:hover .dot {
-  background-color: #fff;
+    .dot {
+      background-color: white;
+    }
+  }
 }
 
 .dot {
@@ -379,7 +404,7 @@ body {
   margin-right: 2px;
   width: 5px;
   height: 5px;
-  background: #D39800;
+  background: $dirty-orange;
 }
 
 .dropdown {
@@ -400,25 +425,22 @@ body {
 }
 
 .dropdown-body {
+  @extend %cont-shared;
   position: absolute;
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   margin-top: 36px;
   width: 100%;
   height: 132px;
-  background-color: #fff;
+  background-color: white;
   border-radius: 15px;
   box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.15);
-}
 
-.dropdown-body p {
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 300;
-  font-size: 16px;
-  color: #000;
+  p {
+    @extend %primary-font;
+    font-weight: 300;
+    font-size: 16px;
+    color: #000;
+  }
 }
 
 .drop-title {
@@ -426,7 +448,7 @@ body {
   align-items: center;
   height: 30px;
   width: 85%;
-  border-bottom: 1px solid #ECECEC;
+  border-bottom: 1px solid $light;
 }
 
 .drop-item {
@@ -437,20 +459,17 @@ body {
   cursor: pointer;
   border-radius: 5px;
   padding-left: 4px;
-}
 
-.drop-item:hover {
-  background-color: #f3f3f3;
+  &:hover {
+    background-color: #f3f3f3;
+  }
 }
 
 .search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @extend %cont-shared;
   width: 92%;
   height: 40px;
-  background: #ECECEC;
+  background: $light;
   border-radius: 15px;
 }
 
@@ -461,23 +480,20 @@ input {
   border: none;
   user-select: none;
   font-size: 20px;
-}
 
-input::placeholder {
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 300;
-  font-size: 20px;
-  color: #8A8A8A;
-}
+  &::placeholder {
+    @extend %primary-font;
+    font-weight: 300;
+    font-size: 20px;
+    color: $light-gray;
+  }
 
-input:focus {
-  outline: none;
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 300;
-  font-size: 20px;
-  color: #000;
+  &:focus {
+    @extend %primary-font;
+    outline: none;
+    font-weight: 300;
+    font-size: 20px;
+  }
 }
 
 .items-cont {
@@ -498,26 +514,27 @@ input:focus {
   justify-content: flex-end;
   width: 100%;
   height: 45px;
-  background-color: #fff;
+  background-color: white;
   border-radius: 0 0 20px 20px;
   box-shadow: 0px -5px 8px rgba(0, 0, 0, 0.12);
 }
 
 .add-button {
   margin-right: 5%;
-}
 
-.add-button:hover p {
-  color: #fff;
-}
+  p {
+    @extend %primary-font;
+    font-weight: 400;
+    font-size: 24px;
+    color: $dirty-orange;
+    user-select: none;
+  }
 
-.add-button p {
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 24px;
-  color: #D39800;
-  user-select: none;
+  &:hover {
+    p {
+      color: white;
+    }
+  }
 }
 
 .edit-button {
@@ -526,28 +543,21 @@ input:focus {
   left: 5%;
   cursor: pointer;
 
-  font-family: 'Rubik';
-  font-style: normal;
+  @extend %primary-font;
   font-weight: 300;
   font-size: 20px;
-  color: #D39800;
+  color: $dirty-orange;
 }
 
 /* Правый блок */
 .cont-top {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @extend %cont-shared;
   width: 100%;
   height: 76px;
 }
 
 .text-cont {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @extend %cont-shared;
   width: 90%;
   height: 85%;
 }
@@ -558,16 +568,14 @@ textarea {
   border: none;
   resize: none;
   
-  font-family: 'Rubik';
-  font-style: normal;
+  @extend %primary-font;
   font-weight: 300;
   font-size: 24px;
   line-height: 28px;
-  color: #000;
-}
 
-textarea:focus {
-  outline: 0;
+  &:focus {
+    outline: 0;
+  }
 }
 
 #right-footer {
@@ -576,40 +584,29 @@ textarea:focus {
 
 .delete-button {
   margin-right: 1%;
+
+  &:hover {
+    background-color: red;
+    border: 1px solid red;
+
+    .delete-icon {
+      stroke: white;
+      fill: red;
+    }
+  }
 }
 
-.delete-button:hover {
-  background-color: red;
-  border: 1px solid red;
-}
-
-.delete-button:hover .delete-icon {
-  stroke: white;
-  fill: red;
-}
-
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 48
-}
-
+/* Заголовки */ 
 h1 {
-  font-family: 'Rubik';
-  font-style: normal;
+  @extend %primary-font;
   font-weight: 400;
   font-size: 30px;
-  color: #000;
 }
 
 h2 {
-  font-family: 'Rubik';
-  font-style: normal;
+  @extend %primary-font;
   font-weight: 400;
   font-size: 24px;
-  color: #000;
 }
 
 </style>

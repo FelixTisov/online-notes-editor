@@ -50,63 +50,46 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '../assets/variables.scss';
 .note-item-cont {
-    position: relative;
-    display: flex;
+    @extend %cont-shared;
     flex-direction: row;
-    align-items: center;
-    justify-content: center;
     height: 56px;
     width: 100%;
 }
 .check-box {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @extend %cont-shared;
     width: 28px;
     height: 56px;
 }
 
 .not-selected{
-    margin-top: 25%;
-    display: block;
-    width: 10px;
-    height: 10px;
-    cursor: pointer;
-    border-radius: 100%;
+    @extend %selection;
     border: 1px solid #dedede;
 }
 
 .selected{
-    margin-top: 25%;
-    display: block;
-    width: 10px;
-    height: 10px;
-    cursor: pointer;
-    border-radius: 100%;
+    @extend %selection;
     border: none;
     background-color: blue;
 }
 
 .item-cont {
-    display: flex;
+    @extend %cont-shared;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     border-radius: 15px;
     height: 56px;
     width: 100%;
     cursor: pointer;
-}
 
-.item-cont:hover {
-    box-shadow: 4px 1px 7px rgba(0, 0, 0, 0.15);
-}
+    &:hover {
+        box-shadow: 4px 1px 7px rgba(0, 0, 0, 0.15);
 
-.item-cont:hover h2 {
-    font-size: 25px;
+        h2 {
+            font-size: 25px;
+        }
+    }
 }
 
 .title-cont {
@@ -119,12 +102,10 @@ export default {
 }
 
 h2 {
-    font-family: 'Rubik';
-    font-style: normal;
+    @extend %primary-font;
     font-weight: 300;
     font-size: 24px;
     line-height: 28px;
-    color: #000000;
 }
 
 .line {
@@ -132,6 +113,6 @@ h2 {
     position: relative;
     width: 95%;
     height: 1.5px;
-    background-color: #ECECEC;
+    background-color: $light;
 }
 </style>

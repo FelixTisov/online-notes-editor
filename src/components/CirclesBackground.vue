@@ -122,16 +122,15 @@ export default {
 .animated-gradient{
     fill: url('#my-gradient');
 }
-
 .background {
     position: absolute;
     display: block;
     width: 100%;
     max-width: 3840px;
-    /* max-width: 1719px; */
     height: 100%;
     background-color: transparent;
 }
+
 svg {
   display: flex;
   position: absolute;

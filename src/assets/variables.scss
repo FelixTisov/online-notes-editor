@@ -1,0 +1,25 @@
+%cont-shared {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+%selection {
+    margin-top: 25%;
+    display: block;
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+    border-radius: 100%;
+}
+
+%primary-font {
+    font-family: 'Rubik';
+    font-style: normal;
+    color: #000;
+}
+
+$light-gray: #8A8A8A;
+$dirty-orange: #D39800;
+$light: #ececec;
