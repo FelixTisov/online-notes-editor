@@ -99,13 +99,6 @@ export default {
   background-color: white;
   border-radius: 15px;
   box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.15);
-
-  // p {
-  //   @extend %primary-font;
-  //   font-weight: 300;
-  //   font-size: 16px;
-  //   color: #000;
-  // }
 }
 
 .drop-title {
@@ -115,25 +108,5 @@ export default {
   width: 85%;
   border-bottom: 1px solid $light;
 }
-
-// .drop-item {
-//   display: flex;
-//   align-items: center;
-//   height: 30px;
-//   width: 85%;
-//   cursor: pointer;
-//   border-radius: 5px;
-//   padding-left: 4px;
-
-//   &:hover {
-//     background-color: #f3f3f3;
-//   }
-// }
-
-// .current {
-//   p{
-//     color: #888;
-//   }
-// } 
 
 </style>
