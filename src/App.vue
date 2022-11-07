@@ -172,9 +172,21 @@ export default {
         this.currentIndex = index - 1
       }
       else {
+
+        // Добавить название заметки если оно пустое
+        if(this.currentNote.title.length === 0) {
+
+          if(this.currentNote.value.length > 10 )
+            this.currentNote.title = this.currentNote.value.substring(0,10) + '...'
+
+          if(this.currentNote.title.length === 0 && this.currentNote.value.length <= 10 )
+            this.currentNote.title = this.currentNote.value
+        }
+        
         this.currentNote = this.allNotes[index]
         this.currentIndex = index
       }
+        
       this.isEmpty = false
       this.hasChanged = false
     },
