@@ -14,29 +14,13 @@
           <div class="header-half right-half">
 
             <!-- Выпадающий список сортировки -->
-            <div class="dropdown" @click="dropdownHandler">
-              <div class="dropdown-header">
-                <div class="circle-button">
-                  <div class="dot"></div>
-                  <div class="dot"></div>
-                  <div class="dot"></div>
-                </div>
-              </div>
-              <div v-if="isDropdown" class="dropdown-body">
-                <div class="drop-title">
-                  <p>Sort by:</p>
-                </div>
-                <div class="drop-item" @click="changeSort('Default')">
-                  <p>Default</p>
-                </div>
-                <div class="drop-item" @click="changeSort('Date')">
-                  <p>Date</p>
-                </div>
-                <div class="drop-item" @click="changeSort('Alphabet')">
-                  <p>Alphabet</p>
-                </div>
-              </div>
-            </div>
+            <DropDown @sortOptionChanged="sortNotes">
+              <template v-slot:dropdown-items="{clickOption: {changeSort}, sort: {currentSort}}">
+                <DropdownItem title="Default" :sort="currentSort" @clickOption = "changeSort"/>
+                <DropdownItem title="Date" :sort="currentSort" @clickOption = "changeSort"/>
+                <DropdownItem title="Alphabet" :sort="currentSort" @clickOption = "changeSort"/>
+              </template>
+            </DropDown>
             
           </div>
         </div>
@@ -111,8 +95,10 @@
 <script>
 import NoteItem from './components/NoteItem.vue'
 import CirclesBackground from './components/CirclesBackground.vue'
+import DropDown from './components/dropdown/DropDown.vue'
+import DropdownItem from './components/dropdown/DropdownItem.vue'
 
-const defaultNotes = require('./components/default_notes')
+const defaultNotes = require('./assets/default_notes')
 
 // Сортировка заметок по алфавиту
 function byTitle(title) {
@@ -123,10 +109,9 @@ function byTitle(title) {
 function byDate(date) {
   return (a, b) => 
     new Date(formateDate(a[date])) > new Date(formateDate(b[date])) ? -1 : 1
-  }
+}
 
 function formateDate(date) {
-
   let dd = date.substring(0,3)
   let mm = date.substring(3,6)
   let formatedDate = mm + dd + date.slice(6) + ':00'
@@ -138,7 +123,9 @@ export default {
   name: 'App',
   components: {
     NoteItem,
-    CirclesBackground
+    CirclesBackground,
+    DropDown,
+    DropdownItem
   },
   data () {
     return {
@@ -150,7 +137,6 @@ export default {
       isEmpty: false,
       isEdit: false, // Множественный выбор
       itemsForEdit: [], // Выбранные заметки
-      isDropdown: false,
       search: '', // Подстрока для поиска заметок
       hasChanged: false // Заметка была изменена
     }
@@ -158,13 +144,14 @@ export default {
   async created() {
     async function generateText() {
         try {
-            let data = await fetch('https://hipsum.co/api/?sentences=5&type=hipster-centric&start-with-lorem=1')
-            let jsonData = await data.json()
-            let result = jsonData[0]
-            return result
-        } catch (error) {
-            console.log(error)
-            return 'Template text'
+          let data = await fetch('https://hipsum.co/api/?sentences=5&type=hipster-centric&start-with-lorem=1')
+          let jsonData = await data.json()
+          let result = jsonData[0]
+          return result
+        } 
+        catch (error) {
+          console.log(error)
+          return 'Template text'
         }
     }
 
@@ -174,12 +161,10 @@ export default {
 
     // Сохраняет дефолтную сортировку
     this.defaultSorted = [...this.allNotes]
-    
   },
   methods: {
     // Открыть заметку
     setCurrentNote(index) {
-      
       // Если пустая заметка не изменена, удалить ее
       if(this.currentNote.title.length === 0 && this.currentNote.value.length === 0) {
         this.allNotes.shift()
@@ -225,13 +210,18 @@ export default {
     updateSelectedList(isSelected) {
       this.itemsForEdit.push(isSelected.index)
     },
-    // Открыть или закрыть выпадающий список
-    dropdownHandler() {
-      this.isDropdown = !this.isDropdown
+    // Поиск заметки по названию
+    searchItem(event) {
+      this.allNotes = []
+      this.defaultSorted.forEach(item => {
+        // Входит ли строка в тайтл какого-либо элемента массива
+        if(item.title.toLowerCase().indexOf(event.target.value.toLowerCase()) + 1) {
+          this.allNotes.unshift(item)
+        }
+      })
     },
-    // Изменить сортировку заметок
-    changeSort(type) {
-      switch (type) {
+    sortNotes(type) {
+      switch (type.option) {
         case 'Default':
           if(this.defaultSorted.length > 0)
             this.allNotes = [...this.defaultSorted]
@@ -243,16 +233,6 @@ export default {
           this.allNotes.sort(byTitle('title'))
           break;
       }
-    },
-    // Поиск заметки по названию
-    searchItem(event) {
-      this.allNotes = []
-      this.defaultSorted.forEach(item => {
-        // Входит ли строка в тайтл какого-либо элемента массива
-        if(item.title.toLowerCase().indexOf(event.target.value.toLowerCase()) + 1) {
-          this.allNotes.unshift(item)
-        }
-      })
     },
     // Если заметка изменена, переместить ее в начало списка
     checkChanged() {
@@ -405,64 +385,6 @@ body {
   width: 5px;
   height: 5px;
   background: $dirty-orange;
-}
-
-.dropdown {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  width: 152px;
-  height: fit-content;
-  z-index: 5;
-}
-
-.dropdown-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  height: fit-content;
-}
-
-.dropdown-body {
-  @extend %cont-shared;
-  position: absolute;
-  flex-direction: column;
-  margin-top: 36px;
-  width: 100%;
-  height: 132px;
-  background-color: white;
-  border-radius: 15px;
-  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.15);
-
-  p {
-    @extend %primary-font;
-    font-weight: 300;
-    font-size: 16px;
-    color: #000;
-  }
-}
-
-.drop-title {
-  display: flex;
-  align-items: center;
-  height: 30px;
-  width: 85%;
-  border-bottom: 1px solid $light;
-}
-
-.drop-item {
-  display: flex;
-  align-items: center;
-  height: 30px;
-  width: 85%;
-  cursor: pointer;
-  border-radius: 5px;
-  padding-left: 4px;
-
-  &:hover {
-    background-color: #f3f3f3;
-  }
 }
 
 .search {
