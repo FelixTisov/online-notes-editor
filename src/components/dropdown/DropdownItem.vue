@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'drop-item': true, 'current': sort === title}" @click="changeSort(title)">
+  <div :class="{'drop-item': true, 'drop-item_current': sort === title}" @click="changeSort(title)">
     <p>{{title}}</p>
   </div>
 </template>
@@ -50,7 +50,7 @@ export default {
   }
 }
 
-.current {
+.drop-item_current {
   p{
     color: #888;
   }

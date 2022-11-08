@@ -1,14 +1,14 @@
 <template>
     <div class="dropdown" ref="mydropdown" @click="dropdownHandler">
-        <div class="dropdown-header">
+        <div class="dropdown_header">
             <div class="circle-button">
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
             </div>
         </div>
-        <div v-if="isDropdown" class="dropdown-body">
-            <div class="drop-title">
+        <div v-if="isDropdown" class="dropdown_body">
+            <div class="dropdown_body_drop-title">
                 <p>Sort by:</p>
             </div>
             <slot 
@@ -81,7 +81,7 @@ export default {
   z-index: 5;
 }
 
-.dropdown-header {
+.dropdown_header {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -89,7 +89,7 @@ export default {
   height: fit-content;
 }
 
-.dropdown-body {
+.dropdown_body {
   @extend %cont-shared;
   position: absolute;
   flex-direction: column;
@@ -101,7 +101,7 @@ export default {
   box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.15);
 }
 
-.drop-title {
+.dropdown_body_drop-title {
   display: flex;
   align-items: center;
   height: 30px;

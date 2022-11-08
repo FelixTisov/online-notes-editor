@@ -6,12 +6,12 @@
     <div class="container" v-cloak>
 
       <!-- Блок со списком заметок -->
-      <div class="main-block notes-list-cont">
-        <div class="block-header">
-          <div class="header-half">
+      <div class="main-block main-block_notes-list">
+        <div class="main-block_header">
+          <div class="main-block_header_half">
             <h1>Notes</h1>
           </div>
-          <div class="header-half right-half">
+          <div class="main-block_header_half main-block_header_half_right">
 
             <!-- Выпадающий список сортировки -->
             <DropDown @sortOptionChanged="sortNotes">
@@ -21,15 +21,15 @@
                 <DropdownItem title="Alphabet" :sort="currentSort" @clickOption = "changeSort"/>
               </template>
             </DropDown>
-            
+    
           </div>
         </div>
 
-        <div class="search">
+        <div class="main-block_search">
           <input @input="searchItem" placeholder="Search...">
         </div>
 
-        <div class="items-cont" v-for:="(note, index) in allNotes">
+        <div class="main-block_items-cont" v-for:="(note, index) in allNotes">
           <NoteItem 
             :title="note.title" 
             @click="setCurrentNote(index)"
@@ -39,8 +39,8 @@
           />
         </div>
 
-        <div class="block-footer">
-          <div class="edit-button" @click="editNotesList">
+        <div class="main-block_footer">
+          <div class="main-block_footer_edit-button" @click="editNotesList">
             <p v-if="!isEdit">
               Edit
             </p>
@@ -48,37 +48,37 @@
               Cancel
             </p>
           </div>
-          <div class="circle-button add-button" @click="addNoteHandler">
+          <div class="circle-button circle-button_add" @click="addNoteHandler">
             <p>+</p>
           </div>
         </div>
       </div>
 
       <!-- Блок редактирования -->
-      <div class="main-block text-input-cont">
-        <div class="cont-top" v-if="!isEmpty">
-          <div class="header-half">
+      <div class="main-block main-block_text-input-cont">
+        <div class="main-block_cont-top" v-if="!isEmpty">
+          <div class="main-block_header_half">
             <input 
               placeholder="Enter the title..." 
               type="text" 
               v-model="currentNote.title" 
               @change="checkChanged"/>
           </div>
-          <div class="header-half right-half">
+          <div class="main-block_header_half main-block_header_half_right">
             <p>{{currentNote.date}}</p>
           </div>
         </div>
-        <div class="text-cont" v-if="!isEmpty">
+        <div class="main-block_text-cont" v-if="!isEmpty">
           <textarea 
             v-model="currentNote.value"
             @change="checkChanged"
           ></textarea>
         </div>
 
-        <div class="block-footer" id="right-footer" v-if="!isEmpty">
-          <div class="circle-button delete-button" @click="deleteNoteHandler">
+        <div class="main-block_footer" id="right-footer" v-if="!isEmpty">
+          <div class="circle-button circle-button_delete" @click="deleteNoteHandler">
             <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="delete-icon">
-              <path class="delete-icon"
+              <path class="main-block_footer_delete-icon"
                 d="M4.81818 8.09677L5.45455 16.4839M10.5455 16.4839L11.1818 8.09677M8 8.09677V16.4839M10.5455 4.22581H13.8797C14.4768 4.22581 14.9408 4.74564 14.8733 5.33889L13.1919 20.1131C13.1343 20.6183 12.7068 21 12.1983 21H3.19973C2.67679 21 2.24216 20.5971 2.20259 20.0757L1.08161 5.30146C1.03758 4.72104 1.49665 4.22581 2.07875 4.22581H5.45455M10.5455 4.22581V2C10.5455 1.44772 10.0977 1 9.54545 1H6.45455C5.90226 1 5.45455 1.44772 5.45455 2V4.22581M10.5455 4.22581H5.45455"
                 stroke="#D39800" 
                 stroke-linecap="round"
@@ -310,25 +310,19 @@ body {
   border-radius: 20px;
 }
 
-.notes-list-cont {
+.main-block_notes-list {
   width: 30.5%;
   margin-left: 25px;
   margin-right: 20px;
 }
 
-.text-input-cont {
-  width: 61%;
-  margin-left: 20px;
-  margin-right: 25px;
-}
-
-.block-header {
+.main-block_header {
   @extend %cont-shared;
   height: 76px;
   width: 100%;
 }
 
-.header-half {
+.main-block_header_half {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -339,6 +333,7 @@ body {
     @extend %primary-font;
     font-weight: 400;
     font-size: 24px;
+    border: none;
 
     &:focus {
       @extend %primary-font;
@@ -356,7 +351,7 @@ body {
   }
 }
 
-.right-half {
+.main-block_header_half_right {
   justify-content: flex-end;
 
   p {
@@ -399,38 +394,38 @@ body {
   background: $dirty-orange;
 }
 
-.search {
+.main-block_search {
   @extend %cont-shared;
   width: 92%;
   height: 40px;
   background: $light;
   border-radius: 15px;
+
+  input {
+    width: 95%;
+    height: 68%;
+    background-color: transparent;
+    border: none;
+    user-select: none;
+    font-size: 20px;
+
+    &::placeholder {
+      @extend %primary-font;
+      font-weight: 300;
+      font-size: 20px;
+      color: $light-gray;
+    }
+
+    &:focus {
+      @extend %primary-font;
+      outline: none;
+      font-weight: 300;
+      font-size: 20px;
+    }
+  }
 }
 
-input {
-  width: 95%;
-  height: 68%;
-  background-color: transparent;
-  border: none;
-  user-select: none;
-  font-size: 20px;
-
-  &::placeholder {
-    @extend %primary-font;
-    font-weight: 300;
-    font-size: 20px;
-    color: $light-gray;
-  }
-
-  &:focus {
-    @extend %primary-font;
-    outline: none;
-    font-weight: 300;
-    font-size: 20px;
-  }
-}
-
-.items-cont {
+.main-block_items-cont {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -440,7 +435,7 @@ input {
   margin-top: 10px;
 }
 
-.block-footer {
+.main-block_footer {
   position: absolute;
   bottom: 0;
   display: flex;
@@ -453,7 +448,7 @@ input {
   box-shadow: 0px -5px 8px rgba(0, 0, 0, 0.12);
 }
 
-.add-button {
+.circle-button_add {
   margin-right: 5%;
 
   p {
@@ -471,7 +466,7 @@ input {
   }
 }
 
-.edit-button {
+.main-block_footer_edit-button {
   position: absolute;
   display: flex;
   left: 5%;
@@ -484,46 +479,54 @@ input {
 }
 
 /* Правый блок */
-.cont-top {
+.main-block_text-input-cont {
+  width: 61%;
+  margin-left: 20px;
+  margin-right: 25px;
+}
+
+.main-block_cont-top {
   @extend %cont-shared;
   width: 100%;
   height: 76px;
 }
 
-.text-cont {
+.main-block_text-cont {
   @extend %cont-shared;
   width: 90%;
   height: 85%;
-}
 
-textarea {
-  width: 100%;
-  height: 100%;
-  border: none;
-  resize: none;
-  
-  @extend %primary-font;
-  font-weight: 300;
-  font-size: 24px;
-  line-height: 28px;
+  textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    resize: none;
+    
+    @extend %primary-font;
+    font-weight: 300;
+    font-size: 24px;
+    line-height: 28px;
 
-  &:focus {
-    outline: 0;
+    &:focus {
+      outline: 0;
+    }
   }
 }
+
+
 
 #right-footer {
   box-shadow: none;
 }
 
-.delete-button {
+.circle-button_delete {
   margin-right: 1%;
 
   &:hover {
     background-color: red;
     border: 1px solid red;
 
-    .delete-icon {
+    .main-block_footer_delete-icon {
       stroke: white;
       fill: red;
     }
