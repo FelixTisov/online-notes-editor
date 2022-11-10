@@ -88,4 +88,15 @@ svg {
   position: absolute;
   transform: rotate(-45deg);
 }
+
+/* Отключить для мобильной версии */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 640px)
+  and (-webkit-min-device-pixel-ratio: 2) 
+{
+    .background{
+        display: none;
+    }
+}
 </style>

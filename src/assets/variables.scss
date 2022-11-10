@@ -20,6 +20,23 @@
     color: #000;
 }
 
+%custom-scrollbar {
+    &::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background-color: transparent;
+    }
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: rgb(209, 209, 209);
+    }
+}
+
 $light-gray: #8A8A8A;
 $dirty-orange: #D39800;
 $light: #ececec;

@@ -29,14 +29,16 @@
           <input @input="searchItem" placeholder="Search...">
         </div>
 
-        <div class="main-block_items-cont" v-for:="(note, index) in allNotes">
-          <NoteItem 
-            :title="note.title" 
-            @click="setCurrentNote(index)"
-            :checkBox="isEdit"
-            :index="index"
-            @changeSelection="updateSelectedList"
-          />
+        <div class="main-block_list">
+          <div class="main-block_list_item-cont" v-for:="(note, index) in allNotes">
+            <NoteItem 
+              :title="note.title" 
+              @click="isMobile ? openNote(index) : setCurrentNote(index)"
+              :checkBox="isEdit"
+              :index="index"
+              @changeSelection="updateSelectedList"
+            />
+          </div>
         </div>
 
         <div class="main-block_footer">
@@ -76,6 +78,9 @@
         </div>
 
         <div class="main-block_footer" id="right-footer" v-if="!isEmpty">
+          <div v-if="isMobile" class="circle-button circle-button_back" @click="closeNote">
+
+          </div>
           <div class="circle-button circle-button_delete" @click="deleteNoteHandler">
             <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="delete-icon">
               <path class="main-block_footer_delete-icon"
@@ -85,6 +90,7 @@
               />
             </svg>
           </div>
+          
         </div>
       </div>
 
@@ -129,22 +135,43 @@ export default {
   },
   data () {
     return {
-      isFetched: false,
+      isFetched: false, // Отправлен ли запрос к API
       allNotes: defaultNotes,
       currentNote: defaultNotes[0],
       defaultSorted: [], // Временный список заметок при изменении сортировки
       currentIndex: 0,
-      isEmpty: false,
+      isEmpty: false, // Является ли заметка пустой
       isEdit: false, // Множественный выбор
       itemsForEdit: [], // Выбранные заметки
       search: '', // Подстрока для поиска заметок
-      hasChanged: false // Заметка была изменена
+      hasChanged: false, // Заметка была изменена
+      isMobile: false
     }
   },
   async created() {
-    async function generateText() {
+    // Создать заметку-пример
+    this.allNotes[0].value = await this.generateText()
+    // Запрос выполнен
+    this.isFetched = true
+
+    // Добавляет сгенерированную заметку-пример в дефолтную сортировку
+    this.defaultSorted = [...this.allNotes]
+
+    // Определить мобильная или десктопная версия
+    if(window.matchMedia(
+        '(max-device-width: 640px)', 
+        '(min-device-width: 320px)', 
+        '(-webkit-min-device-pixel-ratio: 2)'
+      ).matches)
+    {
+      this.isMobile = true
+    }
+  },
+  methods: {
+    // Генератор текста
+    async generateText() {
         try {
-          let data = await fetch('https://hipsum.co/api/?sentences=5&type=hipster-centric&start-with-lorem=1')
+          let data = await fetch('https://hipsum.co/api/?sentences=25&type=hipster-centric&start-with-lorem=1')
           let jsonData = await data.json()
           let result = jsonData[0]
           return result
@@ -153,16 +180,7 @@ export default {
           console.log(error)
           return 'Template text'
         }
-    }
-
-    this.allNotes[0].value = await generateText()
-    // Запрос выполнен
-    this.isFetched = true
-
-    // Сохраняет дефолтную сортировку
-    this.defaultSorted = [...this.allNotes]
-  },
-  methods: {
+    },
     // Открыть заметку
     setCurrentNote(index) {
       // Если пустая заметка не изменена, удалить ее
@@ -173,7 +191,7 @@ export default {
       }
       else {
 
-        // Добавить название заметки если оно пустое
+        // Добавить название предыдущей заметки если оно пустое
         if(this.currentNote.title.length === 0) {
 
           if(this.currentNote.value.length > 10 )
@@ -193,9 +211,12 @@ export default {
     // Добавить новую заметку
     addNoteHandler() {
       if(this.currentNote.value.length !== 0 || this.currentNote.title.length !== 0) {
-        this.allNotes.unshift({title: '', value: '', date: this.getDate()})
+        let newDate = this.getDate()
+        this.allNotes.unshift({title: '', value: '', date: newDate, edited: newDate})
         this.currentNote = this.allNotes[0]
         this.isEmpty = false
+        if(this.isMobile)
+          this.openNote(this.currentIndex)
       }
     },
     // Удалить заметку
@@ -232,17 +253,20 @@ export default {
         }
       })
     },
+    // Отсортировать заметки
     sortNotes(type) {
       switch (type.option) {
         case 'Default':
-          if(this.defaultSorted.length > 0)
-            this.allNotes = [...this.defaultSorted]
+          if(this.allNotes.length > 0)
+            this.allNotes.sort(byDate('edited'))
           break;
         case 'Date':
-          this.allNotes.sort(byDate('date'))
+          if(this.allNotes.length > 0)
+            this.allNotes.sort(byDate('date'))
           break;
         case 'Alphabet':
-          this.allNotes.sort(byTitle('title'))
+          if(this.allNotes.length > 0)
+            this.allNotes.sort(byTitle('title'))
           break;
       }
     },
@@ -250,7 +274,7 @@ export default {
     checkChanged() {
       if(!this.hasChanged) {
         let forReplace = this.allNotes.splice(this.currentIndex, 1)
-        forReplace[0].date = this.getDate()
+        forReplace[0].edited = this.getDate()
         this.allNotes.unshift(forReplace[0])
         this.hasChanged = true
         this.defaultSorted = [...this.allNotes]
@@ -265,8 +289,24 @@ export default {
       let yy = currentDate.getFullYear().toString().slice(2,4)
       let hrs = String(currentDate.getHours()).padStart(2, '0')
       let min = String(currentDate.getMinutes()).padStart(2, '0')
-      currentDate =  dd + '.' + mm + '.' + yy + ' ' + hrs + ':' + min
-      return currentDate 
+      let crDate =  dd + '.' + mm + '.' + yy + ' ' + hrs + ':' + min
+      return crDate 
+    },
+    // Открыть заметку в мобильной версии
+    openNote(index) {
+      let editor = document.querySelector('.main-block_text-input-cont')
+      editor.classList.add("text-input-cont-visible")
+      this.currentNote = this.allNotes[index]
+      this.currentIndex = index
+    },
+    // Закрыть заметку в мобильной версии
+    closeNote() {
+      let editor = document.querySelector('.main-block_text-input-cont')
+      editor.classList.remove("text-input-cont-visible")
+
+      // Если новая заметка не изменена, удалить её
+      if(this.currentNote.title.length === 0 && this.currentNote.value.length === 0)
+        this.allNotes.shift()
     }
   }
 }
@@ -312,6 +352,7 @@ body {
 
 .main-block_notes-list {
   width: 30.5%;
+  min-width: 160px;
   margin-left: 25px;
   margin-right: 20px;
 }
@@ -328,6 +369,7 @@ body {
   justify-content: flex-start;
   height: 100%;
   width: 45%;
+  user-select: none;
 
   input {
     @extend %primary-font;
@@ -425,7 +467,19 @@ body {
   }
 }
 
-.main-block_items-cont {
+.main-block_list{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 2%;
+  width: 92%;
+  height: 75%;
+  overflow-y: scroll;
+  @extend %custom-scrollbar
+}
+
+.main-block_list_item-cont {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -498,10 +552,12 @@ body {
 
   textarea {
     width: 100%;
-    height: 100%;
+    height: 92%;
     border: none;
     resize: none;
-    
+    cursor: auto;
+    @extend %custom-scrollbar;
+
     @extend %primary-font;
     font-weight: 300;
     font-size: 24px;
@@ -512,8 +568,6 @@ body {
     }
   }
 }
-
-
 
 #right-footer {
   box-shadow: none;
@@ -544,6 +598,50 @@ h2 {
   @extend %primary-font;
   font-weight: 400;
   font-size: 24px;
+}
+
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 640px)
+  and (-webkit-min-device-pixel-ratio: 2) 
+{
+  .main-block_notes-list {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0;
+    z-index: 1;
+  }
+
+  .main-block_text-input-cont {
+    position: absolute;
+    display: none;
+    width: 100%;
+    height: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0;
+    z-index: 3;
+  }
+
+  .text-input-cont-visible {
+    display: flex;
+  }
+
+  #right-footer {
+    justify-content: space-between;
+  }
+
+  .circle-button_back {
+    margin-left: 5%;
+  }
+  
+  .circle-button_delete {
+    margin-right: 5%;
+  }
+
 }
 
 </style>

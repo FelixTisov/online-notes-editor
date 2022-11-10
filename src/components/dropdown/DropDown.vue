@@ -1,7 +1,7 @@
 <template>
-    <div class="dropdown" ref="mydropdown" @click="dropdownHandler">
+    <div class="dropdown" ref="mydropdown">
         <div class="dropdown_header">
-            <div class="circle-button">
+            <div class="circle-button" @click="dropdownHandler">
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
