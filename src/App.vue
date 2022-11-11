@@ -21,7 +21,7 @@
                 <DropdownItem title="Alphabet" :sort="currentSort" @clickOption = "changeSort"/>
               </template>
             </DropDown>
-    
+
           </div>
         </div>
 
@@ -31,8 +31,8 @@
 
         <div class="main-block_list">
           <div class="main-block_list_item-cont" v-for:="(note, index) in allNotes">
-            <NoteItem 
-              :title="note.title" 
+            <NoteItem
+              :title="note.title"
               @click="isMobile ? openNote(index) : setCurrentNote(index)"
               :checkBox="isEdit"
               :index="index"
@@ -60,10 +60,10 @@
       <div class="main-block main-block_text-input-cont">
         <div class="main-block_cont-top" v-if="!isEmpty">
           <div class="main-block_header_half">
-            <input 
-              placeholder="Enter the title..." 
-              type="text" 
-              v-model="currentNote.title" 
+            <input
+              placeholder="Enter the title..."
+              type="text"
+              v-model="currentNote.title"
               @change="checkChanged"/>
           </div>
           <div class="main-block_header_half main-block_header_half_right">
@@ -71,7 +71,7 @@
           </div>
         </div>
         <div class="main-block_text-cont" v-if="!isEmpty">
-          <textarea 
+          <textarea
             v-model="currentNote.value"
             @change="checkChanged"
           ></textarea>
@@ -85,12 +85,12 @@
             <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="delete-icon">
               <path class="main-block_footer_delete-icon"
                 d="M4.81818 8.09677L5.45455 16.4839M10.5455 16.4839L11.1818 8.09677M8 8.09677V16.4839M10.5455 4.22581H13.8797C14.4768 4.22581 14.9408 4.74564 14.8733 5.33889L13.1919 20.1131C13.1343 20.6183 12.7068 21 12.1983 21H3.19973C2.67679 21 2.24216 20.5971 2.20259 20.0757L1.08161 5.30146C1.03758 4.72104 1.49665 4.22581 2.07875 4.22581H5.45455M10.5455 4.22581V2C10.5455 1.44772 10.0977 1 9.54545 1H6.45455C5.90226 1 5.45455 1.44772 5.45455 2V4.22581M10.5455 4.22581H5.45455"
-                stroke="#D39800" 
+                stroke="#D39800"
                 stroke-linecap="round"
               />
             </svg>
           </div>
-          
+
         </div>
       </div>
 
@@ -98,34 +98,45 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import NoteItem from './components/NoteItem.vue'
 import CirclesBackground from './components/CirclesBackground.vue'
 import DropDown from './components/dropdown/DropDown.vue'
 import DropdownItem from './components/dropdown/DropdownItem.vue'
+import { defineComponent } from 'vue'
+import { defaultNotes } from './assets/default_notes'
 
-const defaultNotes = require('./assets/default_notes')
-
-// Сортировка заметок по алфавиту
-function byTitle(title) {
-  return (a, b) => a[title] > b[title] ? 1 : -1;
+interface note {
+  title: string,
+  value: string,
+  date: string,
+  edited: string
 }
 
-// Сортировка по убыванию даты
-function byDate(date) {
-  return (a, b) => 
-    new Date(formateDate(a[date])) > new Date(formateDate(b[date])) ? -1 : 1
+interface selectedItem {
+  value: boolean,
+  index: number
 }
 
-function formateDate(date) {
-  let dd = date.substring(0,3)
-  let mm = date.substring(3,6)
-  let formatedDate = mm + dd + date.slice(6) + ':00'
+// Сортировка заметок по убыванию даты
+function byDate (param:string) {
+  switch (param) {
+    case 'date':
+      return (a:note, b:note) => new Date(formateDate(a.date)) > (new Date(formateDate(b.date))) ? -1 : 1
+    case 'edited':
+      return (a:note, b:note) => new Date(formateDate(a.edited)) > (new Date(formateDate(b.edited))) ? -1 : 1
+  }
+}
+
+function formateDate (date:string):string {
+  const dd: string = date.substring(0, 3)
+  const mm: string = date.substring(3, 6)
+  const formatedDate: string = mm + dd + date.slice(6) + ':00'
 
   return formatedDate
 }
 
-export default {
+export default defineComponent({
   name: 'App',
   components: {
     NoteItem,
@@ -135,20 +146,20 @@ export default {
   },
   data () {
     return {
-      isFetched: false, // Отправлен ли запрос к API
-      allNotes: defaultNotes,
+      isFetched: false as boolean, // Отправлен ли запрос к API
+      allNotes: defaultNotes as Array<note>,
       currentNote: defaultNotes[0],
-      defaultSorted: [], // Временный список заметок при изменении сортировки
-      currentIndex: 0,
-      isEmpty: false, // Является ли заметка пустой
-      isEdit: false, // Множественный выбор
-      itemsForEdit: [], // Выбранные заметки
-      search: '', // Подстрока для поиска заметок
-      hasChanged: false, // Заметка была изменена
-      isMobile: false
+      defaultSorted: [] as Array<note>, // Временный список заметок при изменении сортировки
+      currentIndex: 0 as number,
+      isEmpty: false as boolean, // Отображение редактора
+      isEdit: false as boolean, // Множественный выбор
+      itemsForEdit: [] as Array<number>, // Выбранные заметки
+      search: '' as string, // Подстрока для поиска заметок
+      hasChanged: false as boolean, // Заметка была изменена
+      isMobile: false as boolean
     }
   },
-  async created() {
+  async created () {
     // Создать заметку-пример
     this.allNotes[0].value = await this.generateText()
     // Запрос выполнен
@@ -158,122 +169,121 @@ export default {
     this.defaultSorted = [...this.allNotes]
 
     // Определить мобильная или десктопная версия
-    if(window.matchMedia(
-        '(max-device-width: 640px)', 
-        '(min-device-width: 320px)', 
-        '(-webkit-min-device-pixel-ratio: 2)'
-      ).matches)
-    {
+    if (window.matchMedia(
+      '(max-device-width: 640px) and (min-device-width: 320px) and (-webkit-min-device-pixel-ratio: 2)'
+    ).matches) {
       this.isMobile = true
     }
   },
   methods: {
     // Генератор текста
-    async generateText() {
-        try {
-          let data = await fetch('https://hipsum.co/api/?sentences=25&type=hipster-centric&start-with-lorem=1')
-          let jsonData = await data.json()
-          let result = jsonData[0]
-          return result
-        } 
-        catch (error) {
-          console.log(error)
-          return 'Template text'
-        }
+    async generateText () {
+      try {
+        const data = await fetch('https://hipsum.co/api/?sentences=25&type=hipster-centric&start-with-lorem=1')
+        const jsonData = await data.json()
+        const result = jsonData[0]
+        return result
+      } catch (error) {
+        return 'Template text'
+      }
     },
     // Открыть заметку
-    setCurrentNote(index) {
-      // Если пустая заметка не изменена, удалить ее
-      if(this.currentNote.title.length === 0 && this.currentNote.value.length === 0) {
-        this.allNotes.shift()
-        this.currentNote = this.allNotes[index-1]
-        this.currentIndex = index - 1
-      }
-      else {
+    setCurrentNote (index:number) {
+      if (index !== this.currentIndex) {
+        // Если пустая заметка не изменена, удалить ее
+        if (this.currentNote.title.length === 0 && this.currentNote.value.length === 0) {
+          this.allNotes.shift()
+          this.currentNote = this.allNotes[index - 1]
+          this.currentIndex = index - 1
+        } else {
+          // Добавить название предыдущей заметки если оно пустое
+          if (this.currentNote.title.length === 0) {
+            if (this.currentNote.value.length > 10) {
+              this.currentNote.title = this.currentNote.value.substring(0, 10) + '...'
+            }
+            if (this.currentNote.title.length === 0 && this.currentNote.value.length <= 10) {
+              this.currentNote.title = this.currentNote.value
+            }
+          }
 
-        // Добавить название предыдущей заметки если оно пустое
-        if(this.currentNote.title.length === 0) {
-
-          if(this.currentNote.value.length > 10 )
-            this.currentNote.title = this.currentNote.value.substring(0,10) + '...'
-
-          if(this.currentNote.title.length === 0 && this.currentNote.value.length <= 10 )
-            this.currentNote.title = this.currentNote.value
+          this.currentNote = this.allNotes[index]
+          this.currentIndex = index
         }
-        
-        this.currentNote = this.allNotes[index]
-        this.currentIndex = index
+
+        this.isEmpty = false
+        this.hasChanged = false
       }
-        
-      this.isEmpty = false
-      this.hasChanged = false
     },
     // Добавить новую заметку
-    addNoteHandler() {
-      if(this.currentNote.value.length !== 0 || this.currentNote.title.length !== 0) {
-        let newDate = this.getDate()
-        this.allNotes.unshift({title: '', value: '', date: newDate, edited: newDate})
+    addNoteHandler () {
+      if (this.currentNote.value.length !== 0 || this.currentNote.title.length !== 0) {
+        const newDate = this.getDate()
+        this.allNotes.unshift({ title: '', value: '', date: newDate, edited: newDate })
         this.currentNote = this.allNotes[0]
         this.isEmpty = false
-        if(this.isMobile)
+        if (this.isMobile) {
           this.openNote(this.currentIndex)
+        }
       }
     },
     // Удалить заметку
-    deleteNoteHandler() {
+    deleteNoteHandler () {
       // Для оной заметки
-      if(!this.isEdit) {
-        this.allNotes.splice(this.currentIndex,1)
-        this.isEmpty = true
-      }
-      // Для выбора через edit
-      else {
-        for (let i = this.itemsForEdit.length -1; i >= 0; i--)
-          this.allNotes.splice(this.itemsForEdit[i],1)
-        this.isEmpty = true
+      if (!this.isEdit) {
+        this.allNotes.splice(this.currentIndex, 1)
+      } else {
+        // Для выбора через edit
+        for (let i = this.itemsForEdit.length - 1; i >= 0; i--) {
+          this.allNotes.splice(this.itemsForEdit[i], 1)
+          console.log(this.allNotes)
+        }
         this.isEdit = false
       }
+      this.isEmpty = true
       this.defaultSorted = [...this.allNotes]
     },
     // Если новая заметка больше не пустая
-    editNotesList() {
+    editNotesList () {
       this.isEdit = !this.isEdit
     },
     // Выбрать несколько заметок
-    updateSelectedList(isSelected) {
-      this.itemsForEdit.push(isSelected.index)
+    updateSelectedList (itemToEmit:selectedItem) {
+      this.itemsForEdit.push(itemToEmit.index)
     },
     // Поиск заметки по названию
-    searchItem(event) {
+    searchItem (event:Event) {
       this.allNotes = []
       this.defaultSorted.forEach(item => {
         // Входит ли строка в тайтл какого-либо элемента массива
-        if(item.title.toLowerCase().indexOf(event.target.value.toLowerCase()) + 1) {
+        if (item.title.toLowerCase().indexOf((event.target as HTMLInputElement).value.toLowerCase()) + 1) {
           this.allNotes.unshift(item)
         }
       })
     },
     // Отсортировать заметки
-    sortNotes(type) {
-      switch (type.option) {
+    sortNotes (option:string) {
+      switch (option) {
         case 'Default':
-          if(this.allNotes.length > 0)
+          if (this.allNotes.length > 0) {
             this.allNotes.sort(byDate('edited'))
-          break;
+          }
+          break
         case 'Date':
-          if(this.allNotes.length > 0)
+          if (this.allNotes.length > 0) {
             this.allNotes.sort(byDate('date'))
-          break;
+          }
+          break
         case 'Alphabet':
-          if(this.allNotes.length > 0)
-            this.allNotes.sort(byTitle('title'))
-          break;
+          if (this.allNotes.length > 0) {
+            this.allNotes.sort((a, b) => a.title.localeCompare(b.title))
+          }
+          break
       }
     },
     // Если заметка изменена, переместить ее в начало списка
-    checkChanged() {
-      if(!this.hasChanged) {
-        let forReplace = this.allNotes.splice(this.currentIndex, 1)
+    checkChanged () {
+      if (!this.hasChanged) {
+        const forReplace = this.allNotes.splice(this.currentIndex, 1)
         forReplace[0].edited = this.getDate()
         this.allNotes.unshift(forReplace[0])
         this.hasChanged = true
@@ -282,34 +292,35 @@ export default {
       }
     },
     // Получить текущую дату
-    getDate() {
-      let currentDate = new Date();
-      let dd = String(currentDate.getDate()).padStart(2, '0')
-      let mm = String(currentDate.getMonth() + 1).padStart(2, '0')
-      let yy = currentDate.getFullYear().toString().slice(2,4)
-      let hrs = String(currentDate.getHours()).padStart(2, '0')
-      let min = String(currentDate.getMinutes()).padStart(2, '0')
-      let crDate =  dd + '.' + mm + '.' + yy + ' ' + hrs + ':' + min
-      return crDate 
+    getDate () {
+      const currentDate = new Date()
+      const dd = String(currentDate.getDate()).padStart(2, '0')
+      const mm = String(currentDate.getMonth() + 1).padStart(2, '0')
+      const yy = currentDate.getFullYear().toString().slice(2, 4)
+      const hrs = String(currentDate.getHours()).padStart(2, '0')
+      const min = String(currentDate.getMinutes()).padStart(2, '0')
+      const crDate = dd + '.' + mm + '.' + yy + ' ' + hrs + ':' + min
+      return crDate
     },
     // Открыть заметку в мобильной версии
-    openNote(index) {
-      let editor = document.querySelector('.main-block_text-input-cont')
-      editor.classList.add("text-input-cont-visible")
+    openNote (index:number) {
+      const editor:Element | null = document.querySelector('.main-block_text-input-cont')
+      editor?.classList.add('text-input-cont-visible')
       this.currentNote = this.allNotes[index]
       this.currentIndex = index
     },
     // Закрыть заметку в мобильной версии
-    closeNote() {
-      let editor = document.querySelector('.main-block_text-input-cont')
-      editor.classList.remove("text-input-cont-visible")
+    closeNote () {
+      const editor:Element | null = document.querySelector('.main-block_text-input-cont')
+      editor?.classList.remove('text-input-cont-visible')
 
       // Если новая заметка не изменена, удалить её
-      if(this.currentNote.title.length === 0 && this.currentNote.value.length === 0)
+      if (this.currentNote.title.length === 0 && this.currentNote.value.length === 0) {
         this.allNotes.shift()
+      }
     }
   }
-}
+})
 </script>
 
 <style lang="scss">
@@ -587,7 +598,7 @@ body {
   }
 }
 
-/* Заголовки */ 
+/* Заголовки */
 h1 {
   @extend %primary-font;
   font-weight: 400;
@@ -600,10 +611,11 @@ h2 {
   font-size: 24px;
 }
 
-@media only screen 
-  and (min-device-width: 320px) 
+/* Для мобильной версии */
+@media only screen
+  and (min-device-width: 320px)
   and (max-device-width: 640px)
-  and (-webkit-min-device-pixel-ratio: 2) 
+  and (-webkit-min-device-pixel-ratio: 2)
 {
   .main-block_notes-list {
     position: absolute;
@@ -637,7 +649,7 @@ h2 {
   .circle-button_back {
     margin-left: 5%;
   }
-  
+
   .circle-button_delete {
     margin-right: 5%;
   }

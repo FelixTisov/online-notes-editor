@@ -4,26 +4,26 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'DropdownItem',
-  data() {
+  data () {
     return {
 
     }
   },
   methods: {
-    changeSort(type) {
-      this.$emit('clickOption', {
-        option: type,
-      })
+    changeSort (option:string | undefined) {
+      this.$emit('clickOption', option)
     }
   },
   props: {
     title: String,
     sort: String
-  },
-}
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -54,6 +54,5 @@ export default {
   p{
     color: #888;
   }
-} 
-
+}
 </style>

@@ -11,62 +11,62 @@
             <div class="dropdown_body_drop-title">
                 <p>Sort by:</p>
             </div>
-            <slot 
-              name="dropdown-items" 
-              :sort="{currentSort}" 
+            <slot
+              name="dropdown-items"
+              :sort="{currentSort}"
               :clickOption="{changeSort}"
             ></slot>
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
   name: 'DropDown',
-  data() {
+  data () {
     return {
       currentSort: 'Default',
-      isDropdown: false,
+      isDropdown: false
     }
   },
-  mounted() {
+  mounted () {
     window.addEventListener('click', this.close)
   },
-  beforeUnmount() {
+  beforeUnmount () {
     window.removeEventListener('click', this.close)
   },
   methods: {
     // Закрыть ввыпадающий список по клику снаружи
-    close(event) {
-      if (!this.$refs.mydropdown.contains(event.target))
+    close (event:Event) {
+      if (!(this.$refs.mydropdown as HTMLDivElement).contains(event.target as Node)) {
         this.isDropdown = false
+      }
     },
     // Открыть или закрыть выпадающий список
-    dropdownHandler() {
+    dropdownHandler () {
       this.isDropdown = !this.isDropdown
     },
     // Изменить выбор сортировки заметок
-    changeSort(type) {
-      switch (type.option) {
+    changeSort (option:string) {
+      switch (option) {
         case 'Default':
           this.currentSort = 'Default'
-          break;
+          break
         case 'Date':
           this.currentSort = 'Date'
-          break;
+          break
         case 'Alphabet':
           this.currentSort = 'Alphabet'
-          break;
+          break
       }
 
       // Передаем в родителя объект isSelected
-      this.$emit('sortOptionChanged', {
-        option: type.option,
-      })
+      this.$emit('sortOptionChanged', option)
     }
   }
-}
+})
 </script>
 
 <style scoped lang="scss">
@@ -80,7 +80,6 @@ export default {
   height: fit-content;
   z-index: 5;
 }
-
 .dropdown_header {
   display: flex;
   align-items: center;
@@ -88,7 +87,6 @@ export default {
   width: 100%;
   height: fit-content;
 }
-
 .dropdown_body {
   @extend %cont-shared;
   position: absolute;
@@ -100,7 +98,6 @@ export default {
   border-radius: 15px;
   box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.15);
 }
-
 .dropdown_body_drop-title {
   display: flex;
   align-items: center;
@@ -108,5 +105,4 @@ export default {
   width: 85%;
   border-bottom: 1px solid $light;
 }
-
 </style>

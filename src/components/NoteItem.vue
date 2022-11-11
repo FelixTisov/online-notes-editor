@@ -2,9 +2,9 @@
     <div class="note-item-cont">
 
         <div class="check-box" v-if="checkBox">
-            <div @click="selectItem" :class="this.isSelected ? 'selected' : 'not-selected'"></div>
+            <div @click="selectItem" :class="isSelected ? 'selected' : 'not-selected'"></div>
         </div>
-    
+
         <div class="item-cont">
             <div class="title-cont">
                 <h2>{{title}}</h2>
@@ -15,39 +15,45 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+interface selectedItem {
+  value: boolean,
+  index: number | undefined
+}
+
+export default defineComponent({
   name: 'NoteItem',
-  data() {
+  data () {
     return {
-        isSelected: false,
+      isSelected: false
     }
   },
   methods: {
-    selectItem() {
-        this.isSelected = !this.isSelected
-        // Передаем в родителя объект isSelected
-        this.$emit('changeSelection', {
-            value: this.isSelected,
-            index: this.index
-        })
+    selectItem () {
+      this.isSelected = !this.isSelected
+      const itemToEmit: selectedItem = { value: this.isSelected, index: this.index }
+      // Передаем в родителя объект isSelected
+      this.$emit('changeSelection', itemToEmit)
     },
-    cancelSelection() {
-        this.isSelected = false
+    cancelSelection () {
+      this.isSelected = false
     }
   },
   props: {
     title: String,
     checkBox: Boolean,
-    index: Number,
+    index: Number
   },
   watch: {
-    checkBox(newVal) {
-        if(newVal === false)
-            this.isSelected = newVal
+    checkBox (newVal) {
+      if (newVal === false) {
+        this.isSelected = newVal
+      }
     }
   }
-}
+})
 </script>
 
 <style scoped lang="scss">

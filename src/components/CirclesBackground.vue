@@ -2,16 +2,15 @@
     <div class="background">
 
         <svg>
-            <linearGradient id="my_gradient" x1="50%" y1="0%" x2="50%" y2="100%" > 
+            <linearGradient id="my_gradient" x1="50%" y1="0%" x2="50%" y2="100%" >
                 <stop offset="0%" stop-color="#DB00FF">
                     <animate attributeName="stop-color" values="#DB00FF; #06D2FF; #DB00FF" dur="4s" repeatCount="indefinite"></animate>
                 </stop>
                 <stop offset="100%" stop-color="#06D2FF">
                     <animate attributeName="stop-color" values="#06D2FF; #DB00FF; #06D2FF" dur="4s" repeatCount="indefinite"></animate>
                 </stop>
-            </linearGradient> 
+            </linearGradient>
         </svg>
-        
         <svg style="left: 1%; top: 40%" width="8vw" height="8vw">
             <circle cx="4vw" cy="4vw" r="4vw" class="background_animated-gradient" />
         </svg>
@@ -63,10 +62,12 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'CirclesBackground'
-}
+})
 </script>
 
 <style scoped>
@@ -90,10 +91,10 @@ svg {
 }
 
 /* Отключить для мобильной версии */
-@media only screen 
-  and (min-device-width: 320px) 
+@media only screen
+  and (min-device-width: 320px)
   and (max-device-width: 640px)
-  and (-webkit-min-device-pixel-ratio: 2) 
+  and (-webkit-min-device-pixel-ratio: 2)
 {
     .background{
         display: none;
