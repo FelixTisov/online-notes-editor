@@ -4,7 +4,7 @@ A simple note editor created via Vue3.js. It has basic functionality including: 
 ## Stack
 
 - Vue3 
-- JS
+- TypeScript
 - SCSS
 
 ## Start Locally
