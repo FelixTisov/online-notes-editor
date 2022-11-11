@@ -79,7 +79,9 @@
 
         <div class="main-block_footer" id="right-footer" v-if="!isEmpty">
           <div v-if="isMobile" class="circle-button circle-button_back" @click="closeNote">
-
+            <svg width="11" height="17" viewBox="0 0 13 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 16L1 8.5L10 0.5" stroke="#D39800" stroke-linecap="round"/>
+            </svg>
           </div>
           <div class="circle-button circle-button_delete" @click="deleteNoteHandler">
             <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="delete-icon">
@@ -241,6 +243,10 @@ export default defineComponent({
       }
       this.isEmpty = true
       this.defaultSorted = [...this.allNotes]
+
+      if (this.isMobile) {
+        this.closeNote()
+      }
     },
     // Если новая заметка больше не пустая
     editNotesList () {
@@ -308,6 +314,7 @@ export default defineComponent({
       editor?.classList.add('text-input-cont-visible')
       this.currentNote = this.allNotes[index]
       this.currentIndex = index
+      this.isEmpty = false
     },
     // Закрыть заметку в мобильной версии
     closeNote () {
