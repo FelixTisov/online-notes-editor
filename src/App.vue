@@ -50,6 +50,11 @@
               Cancel
             </p>
           </div>
+          <div class="main-block_footer_edit-button main-block_footer_delete-button" @click="deleteNoteHandler">
+            <p v-if="isEdit && isMobile">
+              Delete
+            </p>
+          </div>
           <div class="circle-button circle-button_add" @click="addNoteHandler">
             <p>+</p>
           </div>
@@ -241,11 +246,12 @@ export default defineComponent({
         this.allNotes.splice(this.currentIndex, 1)
       } else {
         // Для выбора через edit
-        for (let i = this.itemsForEdit.length - 1; i >= 0; i--) {
-          this.allNotes.splice(this.itemsForEdit[i], 1)
-          console.log(this.allNotes)
-        }
-        this.isEdit = false
+        if (this.itemsForEdit.length > 0) {
+          for (let i = this.itemsForEdit.length - 1; i >= 0; i--) {
+            this.allNotes.splice(this.itemsForEdit[i], 1)
+          }
+          this.isEdit = false
+        } else return
       }
       this.isEmpty = true
       this.notesForSearch = [...this.allNotes]
@@ -274,7 +280,6 @@ export default defineComponent({
     },
     // Отсортировать заметки
     sortNotes (option:string) {
-      console.log(this.allNotes)
       switch (option) {
         case 'Default':
           if (this.allNotes.length > 0) {
@@ -317,11 +322,13 @@ export default defineComponent({
     },
     // Открыть заметку в мобильной версии
     openNote (index:number) {
-      const editor:Element | null = document.querySelector('.main-block_text-input-cont')
-      editor?.classList.add('text-input-cont-visible')
-      this.currentNote = this.allNotes[index]
-      this.currentIndex = index
-      this.isEmpty = false
+      if (!this.isEdit) {
+        const editor:Element | null = document.querySelector('.main-block_text-input-cont')
+        editor?.classList.add('text-input-cont-visible')
+        this.currentNote = this.allNotes[index]
+        this.currentIndex = index
+        this.isEmpty = false
+      }
     },
     // Закрыть заметку в мобильной версии
     closeNote () {
@@ -519,7 +526,7 @@ body {
   bottom: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   width: 100%;
   height: 45px;
   background-color: white;
@@ -546,7 +553,7 @@ body {
 }
 
 .main-block_footer_edit-button {
-  position: absolute;
+  position: relative;
   display: flex;
   left: 5%;
   cursor: pointer;
@@ -555,6 +562,10 @@ body {
   font-weight: 300;
   font-size: 20px;
   color: $dirty-orange;
+}
+
+.main-block_footer_delete-button {
+  left: -1%;
 }
 
 /* Правый блок */
