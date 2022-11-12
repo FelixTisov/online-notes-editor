@@ -371,6 +371,7 @@ body {
 .container {
   @extend %cont-shared;
   position: absolute;
+
   margin: 0;
   flex-direction: row;
   height: 100%;

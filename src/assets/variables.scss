@@ -37,6 +37,11 @@
     }
 }
 
+%common-movement-animation {
+    animation: move;
+    animation-iteration-count: infinite;
+}
+
 $light-gray: #8A8A8A;
 $dirty-orange: #D39800;
 $light: #ececec;
