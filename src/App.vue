@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isFetched" class="wrapper">
+  <div v-if="isNotesLoaded" class="wrapper">
 
     <CirclesBackground/>
 
@@ -148,10 +148,10 @@ export default defineComponent({
   },
   data () {
     return {
-      isFetched: false as boolean, // Отправлен ли запрос к API
-      allNotes: defaultNotes as Array<note>,
+      isNotesLoaded: false as boolean, // Отправлен ли запрос к API
+      allNotes: [] as Array<note>,
       currentNote: defaultNotes[0],
-      defaultSorted: [] as Array<note>, // Временный список заметок при изменении сортировки
+      notesForSearch: [] as Array<note>, // Копия списка заметок для поиска
       currentIndex: 0 as number,
       isEmpty: false as boolean, // Отображение редактора
       isEdit: false as boolean, // Множественный выбор
@@ -162,13 +162,19 @@ export default defineComponent({
     }
   },
   async created () {
-    // Создать заметку-пример
-    this.allNotes[0].value = await this.generateText()
-    // Запрос выполнен
-    this.isFetched = true
+    // Рандомный текст для заметки-примера
+    defaultNotes[0].value = await this.generateText()
+
+    // Загрузить заметки-примеры во все заметки
+    defaultNotes.forEach(item => {
+      this.allNotes.unshift(item)
+    })
+
+    // Все замтеки загружены
+    this.isNotesLoaded = true
 
     // Добавляет сгенерированную заметку-пример в дефолтную сортировку
-    this.defaultSorted = [...this.allNotes]
+    this.notesForSearch = [...this.allNotes]
 
     // Определить мобильная или десктопная версия
     if (window.matchMedia(
@@ -242,7 +248,7 @@ export default defineComponent({
         this.isEdit = false
       }
       this.isEmpty = true
-      this.defaultSorted = [...this.allNotes]
+      this.notesForSearch = [...this.allNotes]
 
       if (this.isMobile) {
         this.closeNote()
@@ -259,7 +265,7 @@ export default defineComponent({
     // Поиск заметки по названию
     searchItem (event:Event) {
       this.allNotes = []
-      this.defaultSorted.forEach(item => {
+      this.notesForSearch.forEach(item => {
         // Входит ли строка в тайтл какого-либо элемента массива
         if (item.title.toLowerCase().indexOf((event.target as HTMLInputElement).value.toLowerCase()) + 1) {
           this.allNotes.unshift(item)
@@ -268,6 +274,7 @@ export default defineComponent({
     },
     // Отсортировать заметки
     sortNotes (option:string) {
+      console.log(this.allNotes)
       switch (option) {
         case 'Default':
           if (this.allNotes.length > 0) {
@@ -293,7 +300,7 @@ export default defineComponent({
         forReplace[0].edited = this.getDate()
         this.allNotes.unshift(forReplace[0])
         this.hasChanged = true
-        this.defaultSorted = [...this.allNotes]
+        this.notesForSearch = [...this.allNotes]
         this.setCurrentNote(0)
       }
     },
