@@ -41,7 +41,7 @@
           </div>
         </div>
 
-        <div class="main-block_footer">
+        <div class="main-block_footer" id="left-footer">
           <div class="main-block_footer_edit-button" @click="editNotesList">
             <p v-if="!isEdit">
               Edit
@@ -55,9 +55,9 @@
               Delete
             </p>
           </div>
-          <div class="circle-button circle-button_add" @click="addNoteHandler">
+          <CircleButton :class="'circle-button_add'" @click="addNoteHandler">
             <p>+</p>
-          </div>
+          </CircleButton>
         </div>
       </div>
 
@@ -83,12 +83,12 @@
         </div>
 
         <div class="main-block_footer" id="right-footer" v-if="!isEmpty">
-          <div v-if="isMobile" class="circle-button circle-button_back" @click="closeNote">
+          <CircleButton v-if="isMobile" :class="'circle-button_back'" @click="closeNote">
             <svg width="11" height="17" viewBox="0 0 13 17" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M10 16L1 8.5L10 0.5" stroke="#D39800" stroke-linecap="round"/>
             </svg>
-          </div>
-          <div class="circle-button circle-button_delete" @click="deleteNoteHandler">
+          </CircleButton>
+          <CircleButton :class="'circle-button_delete'" @click="deleteNoteHandler">
             <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="delete-icon">
               <path class="main-block_footer_delete-icon"
                 d="M4.81818 8.09677L5.45455 16.4839M10.5455 16.4839L11.1818 8.09677M8 8.09677V16.4839M10.5455 4.22581H13.8797C14.4768 4.22581 14.9408 4.74564 14.8733 5.33889L13.1919 20.1131C13.1343 20.6183 12.7068 21 12.1983 21H3.19973C2.67679 21 2.24216 20.5971 2.20259 20.0757L1.08161 5.30146C1.03758 4.72104 1.49665 4.22581 2.07875 4.22581H5.45455M10.5455 4.22581V2C10.5455 1.44772 10.0977 1 9.54545 1H6.45455C5.90226 1 5.45455 1.44772 5.45455 2V4.22581M10.5455 4.22581H5.45455"
@@ -96,8 +96,7 @@
                 stroke-linecap="round"
               />
             </svg>
-          </div>
-
+          </CircleButton>
         </div>
       </div>
 
@@ -110,6 +109,7 @@ import NoteItem from './components/NoteItem.vue'
 import CirclesBackground from './components/CirclesBackground.vue'
 import DropDown from './components/dropdown/DropDown.vue'
 import DropdownItem from './components/dropdown/DropdownItem.vue'
+import CircleButton from './components/CircleButton.vue'
 import { defineComponent } from 'vue'
 import { defaultNotes } from './assets/default_notes'
 
@@ -149,7 +149,8 @@ export default defineComponent({
     NoteItem,
     CirclesBackground,
     DropDown,
-    DropdownItem
+    DropdownItem,
+    CircleButton
   },
   data () {
     return {
@@ -247,6 +248,7 @@ export default defineComponent({
       } else {
         // Для выбора через edit
         if (this.itemsForEdit.length > 0) {
+          console.log(this.itemsForEdit)
           for (let i = this.itemsForEdit.length - 1; i >= 0; i--) {
             this.allNotes.splice(this.itemsForEdit[i], 1)
           }
@@ -266,7 +268,11 @@ export default defineComponent({
     },
     // Выбрать несколько заметок
     updateSelectedList (itemToEmit:selectedItem) {
-      this.itemsForEdit.push(itemToEmit.index)
+      if (itemToEmit.value === true) {
+        this.itemsForEdit.push(itemToEmit.index)
+      } else {
+        this.itemsForEdit.splice(itemToEmit.index, 1)
+      }
     },
     // Поиск заметки по названию
     searchItem (event:Event) {
@@ -436,38 +442,6 @@ body {
   }
 }
 
-.circle-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  width: 29px;
-  height: 29px;
-  left: 457px;
-  top: 64px;
-  border-radius: 100%;
-  border: 1px solid $dirty-orange;
-
-  &:hover {
-    background-color: $dirty-orange;
-
-    .dot {
-      background-color: white;
-    }
-  }
-}
-
-.dot {
-  position: relative;
-  display: block;
-  border-radius: 100%;
-  margin-left: 2px;
-  margin-right: 2px;
-  width: 5px;
-  height: 5px;
-  background: $dirty-orange;
-}
-
 .main-block_search {
   @extend %cont-shared;
   width: 92%;
@@ -526,12 +500,16 @@ body {
   bottom: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   height: 45px;
   background-color: white;
   border-radius: 0 0 20px 20px;
   box-shadow: 0px -5px 8px rgba(0, 0, 0, 0.12);
+}
+
+#left-footer {
+  justify-content: space-between;
 }
 
 .circle-button_add {
@@ -546,6 +524,8 @@ body {
   }
 
   &:hover {
+    background-color: $dirty-orange;
+
     p {
       color: white;
     }
@@ -663,12 +643,12 @@ h2 {
     z-index: 3;
   }
 
-  .text-input-cont-visible {
-    display: flex;
+  .main-block_footer {
+    justify-content: space-between;
   }
 
-  #right-footer {
-    justify-content: space-between;
+  .text-input-cont-visible {
+    display: flex;
   }
 
   .circle-button_back {

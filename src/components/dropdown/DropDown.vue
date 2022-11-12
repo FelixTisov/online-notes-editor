@@ -1,11 +1,16 @@
 <template>
     <div class="dropdown" ref="mydropdown">
         <div class="dropdown_header">
-            <div class="circle-button" @click="dropdownHandler">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
+          <CircleButton :class="'circle-buttonw_with-dots'" @click="dropdownHandler">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </CircleButton>
+          <!-- <div class="circle-button" @click="dropdownHandler">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+          </div> -->
         </div>
         <div v-if="isDropdown" class="dropdown_body">
             <div class="dropdown_body_drop-title">
@@ -22,9 +27,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import CircleButton from '../CircleButton.vue'
 
 export default defineComponent({
   name: 'DropDown',
+  components: {
+    CircleButton
+  },
   data () {
     return {
       currentSort: 'Default',
@@ -86,6 +95,27 @@ export default defineComponent({
   justify-content: flex-end;
   width: 100%;
   height: fit-content;
+}
+
+.dot {
+  position: relative;
+  display: block;
+  border-radius: 100%;
+  margin-left: 2px;
+  margin-right: 2px;
+  width: 5px;
+  height: 5px;
+  background: $dirty-orange;
+}
+
+.circle-buttonw_with-dots {
+  &:hover {
+    background-color: $dirty-orange;
+
+    .dot {
+      background-color: white;
+    }
+  }
 }
 .dropdown_body {
   @extend %cont-shared;
