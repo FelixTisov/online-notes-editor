@@ -173,7 +173,7 @@ export default defineComponent({
 
     // Загрузить заметки-примеры во все заметки
     defaultNotes.forEach(item => {
-      this.allNotes.unshift(item)
+      this.allNotes.push(item)
     })
 
     // Все замтеки загружены
@@ -203,13 +203,20 @@ export default defineComponent({
     },
     // Открыть заметку
     setCurrentNote (index:number) {
-      if (index !== this.currentIndex) {
+      // console.log('Нажата замтека: ')
+      // console.log(this.allNotes[index])
+
+      try {
         // Если пустая заметка не изменена, удалить ее
-        if (this.currentNote.title.length === 0 && this.currentNote.value.length === 0) {
+        if (this.allNotes[0].title.length === 0 && this.allNotes[0].value.length === 0) {
+          // console.log('Пустая! Удалить!')
           this.allNotes.shift()
           this.currentNote = this.allNotes[index - 1]
           this.currentIndex = index - 1
         } else {
+          // console.log('Заметка не пустая!')
+          // console.log(this.allNotes[index])
+
           // Добавить название предыдущей заметки если оно пустое
           if (this.currentNote.title.length === 0) {
             if (this.currentNote.value.length > 10) {
@@ -222,49 +229,95 @@ export default defineComponent({
 
           this.currentNote = this.allNotes[index]
           this.currentIndex = index
+
+          // console.log('Выбранная заметка: ')
+          // console.log(this.currentNote)
         }
 
-        this.isEmpty = false
         this.hasChanged = false
+
+        this.isEmpty = false
+      } catch (error) {
+        this.allNotes = [...this.notesForSearch]
+        this.currentNote = this.allNotes[0]
+        this.currentIndex = 0
+        this.isEmpty = true
+        console.log('Error! ' + error)
       }
     },
     // Добавить новую заметку
     addNoteHandler () {
-      if (this.currentNote.value.length !== 0 || this.currentNote.title.length !== 0) {
-        const newDate = this.getDate()
-        this.allNotes.unshift({ title: '', value: '', date: newDate, edited: newDate })
-        this.currentNote = this.allNotes[0]
-        this.isEmpty = false
-        if (this.isMobile) {
-          this.openNote(this.currentIndex)
+      try {
+        if (!this.isEdit) {
+          if ((this.allNotes.length > 0 && (this.allNotes[0].value.length !== 0 || this.allNotes[0].title.length !== 0)) || this.allNotes.length === 0) {
+            const newDate = this.getDate()
+            this.allNotes.unshift({ title: '', value: '', date: newDate, edited: newDate })
+            this.currentNote = this.allNotes[0]
+            this.isEmpty = false
+            if (this.isMobile) {
+              this.openNote(this.currentIndex)
+            }
+
+            // console.log('После добавления: ')
+            // console.log(this.allNotes)
+          }
         }
+      } catch (error) {
+        this.allNotes = [...this.notesForSearch]
+        this.currentNote = this.allNotes[0]
+        this.currentIndex = 0
+        this.isEmpty = true
+        console.log('Error! ' + error)
       }
     },
     // Удалить заметку
     deleteNoteHandler () {
-      // Для оной заметки
-      if (!this.isEdit) {
-        this.allNotes.splice(this.currentIndex, 1)
-      } else {
-        // Для выбора через edit
-        if (this.itemsForEdit.length > 0) {
-          console.log(this.itemsForEdit)
-          for (let i = this.itemsForEdit.length - 1; i >= 0; i--) {
-            this.allNotes.splice(this.itemsForEdit[i], 1)
-          }
-          this.isEdit = false
-        } else return
-      }
-      this.isEmpty = true
-      this.notesForSearch = [...this.allNotes]
+      try {
+        // Для оной заметки
+        if (!this.isEdit) {
+          this.allNotes.splice(this.currentIndex, 1)
+        } else {
+          // Для выбора через edit
+          if (this.itemsForEdit.length > 0) {
+            console.log(this.itemsForEdit)
+            for (let i = this.itemsForEdit.length - 1; i >= 0; i--) {
+              this.allNotes.splice(this.itemsForEdit[i], 1)
+            }
+            this.isEdit = false
+          } else return
+        }
+        this.isEmpty = true
+        this.notesForSearch = [...this.allNotes]
 
-      if (this.isMobile) {
-        this.closeNote()
+        if (this.isMobile) {
+          const editor:Element | null = document.querySelector('.main-block_text-input-cont')
+          editor?.classList.remove('text-input-cont-visible')
+        }
+      } catch (error) {
+        this.allNotes = [...this.notesForSearch]
+        this.currentNote = this.allNotes[0]
+        this.currentIndex = 0
+        this.isEmpty = true
+        console.log('Error! ' + error)
       }
+
+      // console.log('После удаления: ')
+      // console.log(this.allNotes)
     },
     // Если новая заметка больше не пустая
     editNotesList () {
+      // console.log('Все заметки: ')
+      // console.log(this.allNotes)
+
       this.isEdit = !this.isEdit
+      if (this.allNotes[0].title.length === 0 && this.allNotes[0].value.length === 0) {
+        this.allNotes.shift()
+        this.currentNote = this.allNotes[0]
+        this.isEmpty = true
+
+        // console.log('После удаления пустой: ')
+        // console.log(this.allNotes)
+      }
     },
     // Выбрать несколько заметок
     updateSelectedList (itemToEmit:selectedItem) {
