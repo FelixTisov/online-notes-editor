@@ -179,7 +179,7 @@ export default defineComponent({
     // Все замтеки загружены
     this.isNotesLoaded = true
 
-    // Добавляет сгенерированную заметку-пример в дефолтную сортировку
+    // Добавляет сгенерированную заметку-пример в массив для поиска
     this.notesForSearch = [...this.allNotes]
 
     // Определить мобильная или десктопная версия
@@ -190,7 +190,7 @@ export default defineComponent({
     }
   },
   methods: {
-    // Генератор текста
+    // Генератор случайного текста
     async generateText () {
       try {
         const data = await fetch('https://hipsum.co/api/?sentences=25&type=hipster-centric&start-with-lorem=1')
@@ -304,7 +304,7 @@ export default defineComponent({
       // console.log('После удаления: ')
       // console.log(this.allNotes)
     },
-    // Если новая заметка больше не пустая
+    // Множественный выбор заметок
     editNotesList () {
       // console.log('Все заметки: ')
       // console.log(this.allNotes)
