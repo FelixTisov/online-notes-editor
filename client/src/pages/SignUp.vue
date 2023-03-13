@@ -8,10 +8,10 @@
                 <p>Sign up</p>
             </div>
 
-            <form>
-                <input placeholder="Your name"/>
-                <input placeholder="Email"/>
-                <input placeholder="Password"/>
+            <form @submit.prevent="signup">
+                <input required v-model="form.userName" placeholder="Your name"/>
+                <input required v-model="form.email" placeholder="Email"/>
+                <input required v-model="form.password" placeholder="Password"/>
 
                 <FormButton class="login-btn">SIGNUP</FormButton>
             </form>
@@ -30,11 +30,51 @@ import { defineComponent } from 'vue'
 import CirclesBackground from '../components/CirclesBackground.vue'
 import FormButton from '@/components/FormButton.vue'
 
+interface signupdata {
+  email: string,
+  password: string,
+  userName: string
+}
+
 export default defineComponent({
   name: 'SignUp',
   components: {
     CirclesBackground,
     FormButton
+  },
+  data () {
+    return {
+      form: { email: '', password: '', userName: '' } as signupdata
+    }
+  },
+  methods: {
+    // Регистрация пользователя
+    async signup () {
+      try {
+        const request = new Request('http://localhost:5000/users/signup',
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...this.form }),
+            headers: { 'content-type': 'application/json' }
+          }
+        )
+
+        fetch(request)
+          .then((response) => {
+            if (response.status === 201) {
+              return this.$router.push('/login')
+            } else {
+              throw new Error('Server error!')
+            }
+          })
+          .catch((error) => {
+            console.error(error)
+          })
+      } catch (error) {
+        console.log(error)
+      }
+      // document.getElementById('auth-form').reset()
+    }
   }
 })
 </script>

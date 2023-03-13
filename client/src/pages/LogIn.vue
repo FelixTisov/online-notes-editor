@@ -8,11 +8,11 @@
         <p>Login</p>
       </div>
 
-      <form>
-        <input placeholder="Email"/>
-        <input placeholder="Password"/>
+      <form @submit.prevent="login">
+        <input v-model="form.email" placeholder="Email"/>
+        <input v-model="form.password" placeholder="Password"/>
 
-        <FormButton class="login-btn">LOGIN</FormButton>
+        <FormButton class="login-btn" >LOGIN</FormButton>
       </form>
 
       <div class="options">
@@ -30,11 +30,53 @@ import { defineComponent } from 'vue'
 import CirclesBackground from '../components/CirclesBackground.vue'
 import FormButton from '@/components/FormButton.vue'
 
+interface logindata {
+  email: string,
+  password: string
+}
+
 export default defineComponent({
   name: 'LogIn',
   components: {
     CirclesBackground,
     FormButton
+  },
+  data () {
+    return {
+      form: { email: 'userone@gmail.com', password: 'user1' } as logindata
+    }
+  },
+  methods: {
+    // Авторизация пользователя
+    async login () {
+      try {
+        const request = new Request('http://localhost:5000/users/login',
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...this.form }),
+            headers: { 'content-type': 'application/json' }
+          }
+        )
+
+        fetch(request)
+          .then((response) => {
+            if (response.status === 303) {
+              response.json().then((data) => {
+                const userID = data.userid
+                localStorage.setItem('userID', userID)
+                return this.$router.push({ name: 'home' })
+              })
+            } else {
+              throw new Error('Server error!')
+            }
+          })
+          .catch((error) => {
+            console.error(error)
+          })
+      } catch (error) {
+        console.log(error)
+      }
+    }
   }
 })
 </script>

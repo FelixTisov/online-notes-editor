@@ -1,9 +1,10 @@
 export const defaultNotes = [
   {
-    title: 'Template note',
-    value: 'Loading...',
-    date: '28.10.22 17:57',
-    edited: '28.10.22 17:57'
+    noteid: '',
+    title: '',
+    value: '',
+    date: '',
+    edited: ''
   },
   {
     title: 'Todo list',

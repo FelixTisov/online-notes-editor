@@ -20,7 +20,8 @@ import { defineComponent } from 'vue'
 
 interface selectedItem {
   value: boolean,
-  index: number | undefined
+  noteid: string | undefined,
+  // index: number | undefined
 }
 
 export default defineComponent({
@@ -33,7 +34,8 @@ export default defineComponent({
   methods: {
     selectItem () {
       this.isSelected = !this.isSelected
-      const itemToEmit: selectedItem = { value: this.isSelected, index: this.index }
+      // const itemToEmit: selectedItem = { value: this.isSelected, index: this.index }
+      const itemToEmit: selectedItem = { value: this.isSelected, noteid: this.noteid }
       // Передаем в родителя объект isSelected
       this.$emit('changeSelection', itemToEmit)
     },
@@ -44,7 +46,8 @@ export default defineComponent({
   props: {
     title: String,
     checkBox: Boolean,
-    index: Number
+    noteid: String
+    // index: Number
   },
   watch: {
     checkBox (newVal) {
