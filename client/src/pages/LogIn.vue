@@ -63,7 +63,12 @@ export default defineComponent({
             if (response.status === 303) {
               response.json().then((data) => {
                 const userID = data.userid
+                const authToken = data.token
+                console.log(authToken)
+
                 localStorage.setItem('userID', userID)
+                localStorage.setItem('authToken', authToken)
+
                 return this.$router.push({ name: 'home' })
               })
             } else {

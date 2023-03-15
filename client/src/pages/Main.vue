@@ -197,11 +197,17 @@ export default defineComponent({
     // Загрузить заметки пользователя
     async fetchNotes (userID:string | null) {
       try {
+        const token = localStorage.getItem('authToken') || ''
+        const requestHeaders = new Headers()
+
+        requestHeaders.set('Content-Type', 'application/json')
+        requestHeaders.set('Authorization', token)
+
         const request = new Request('http://localhost:5000/notes',
           {
             method: 'POST',
             body: JSON.stringify({ userid: userID }),
-            headers: { 'content-type': 'application/json' }
+            headers: requestHeaders
           }
         )
 
@@ -241,11 +247,17 @@ export default defineComponent({
               this.openNote(this.currentIndex)
             }
 
+            const token = localStorage.getItem('authToken') || ''
+            const requestHeaders = new Headers()
+
+            requestHeaders.set('Content-Type', 'application/json')
+            requestHeaders.set('Authorization', token)
+
             const request = new Request('http://localhost:5000/notes/create',
               {
                 method: 'POST',
                 body: JSON.stringify({ ...this.currentNote, userid: localStorage.getItem('userID') }),
-                headers: { 'content-type': 'application/json' }
+                headers: requestHeaders
               }
             )
 
@@ -276,11 +288,17 @@ export default defineComponent({
     // Удалить заметку из БД
     deleteFromDB (noteID:string[]) {
       try {
+        const token = localStorage.getItem('authToken') || ''
+        const requestHeaders = new Headers()
+
+        requestHeaders.set('Content-Type', 'application/json')
+        requestHeaders.set('Authorization', token)
+
         const request = new Request('http://localhost:5000/notes/delete',
           {
             method: 'POST',
             body: JSON.stringify({ noteids: noteID }),
-            headers: { 'content-type': 'application/json' }
+            headers: requestHeaders
           }
         )
 
@@ -302,11 +320,17 @@ export default defineComponent({
       clearTimeout(timer)
       timer = setTimeout(() => {
         try {
+          const token = localStorage.getItem('authToken') || ''
+          const requestHeaders = new Headers()
+
+          requestHeaders.set('Content-Type', 'application/json')
+          requestHeaders.set('Authorization', token)
+
           const request = new Request('http://localhost:5000/notes/update',
             {
               method: 'POST',
               body: JSON.stringify({ field: field, value: value, noteid: this.currentNote.noteid, edited: this.currentNote.edited }),
-              headers: { 'content-type': 'application/json' }
+              headers: requestHeaders
             }
           )
 
