@@ -1,6 +1,5 @@
 from flask import Flask
-# from flask_sqlalchemy import SQLAlchemy
-import os, config
+import os
 from flask_cors import CORS
 
 
@@ -14,4 +13,3 @@ app.config.from_object(os.environ.get('FLASK_ENV') or 'config.DevelopementConfig
 
 # import views
 from . import views
-# from . import forum_views

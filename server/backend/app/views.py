@@ -32,7 +32,7 @@ def encode_auth_token(user_id, login_time):
         }
         return jwt.encode(
             payload,
-            '123456',
+            app.config['SECRET_KEY'],
             algorithm='HS256'
         )
     except Exception as error:
@@ -42,7 +42,7 @@ def encode_auth_token(user_id, login_time):
 def decode_auth_token(auth_token):
     try:
         # Отменить подтверждение срока действия
-        payload = jwt.decode(auth_token, '123456', algorithms=['HS256'], options={'verify_exp': False})
+        payload = jwt.decode(auth_token, app.config['SECRET_KEY'], algorithms=['HS256'], options={'verify_exp': False})
         if 'data' in payload and 'id' in payload['data']:
             return payload
         else:
