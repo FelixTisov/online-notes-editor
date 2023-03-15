@@ -1,21 +1,14 @@
 from app import app
 from flask import json, make_response, jsonify
 from flask import request
-import pymysql
 import shortuuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 import time
+from database import Database
 
-
-# Настройки БД
-db = pymysql.connect(host='f0762448.xsph.ru',
- user='f0762448_test_database',
- password='testpassword',
- database='f0762448_test_database',
- charset='utf8mb4',
- autocommit=True)
+db = Database
 
 
 # Создать токен аутентификации
@@ -53,15 +46,6 @@ def decode_auth_token(auth_token):
         return 'Invalid token!'
 
 
-# выполнение sql запроса
-def call_query(query):
-    cursor = db.cursor()
-    cursor.execute(query)
-    results = cursor.fetchall()
-    cursor.close()
-    return results
-
-
 # регистрация пользователя
 @app.route('/users/signup', methods=['POST'])
 def signup_user():
@@ -82,7 +66,7 @@ def signup_user():
 
         query = "INSERT INTO Users (UserID, Email, Password, UserName) VALUES (UUID(), '{}', " \
                 "'{}', '{}')".format(email, password, username)
-        call_query(query)
+        db.run_query(query=query)
 
         msg = json.dumps("User created")
         stat = 201
@@ -108,7 +92,7 @@ def login_user():
         email, password = data['email'], data['password']
 
         query = "SELECT UserID, Password FROM Users WHERE Email = '{}'".format(email)
-        results = call_query(query)
+        results = db.run_query(query=query)
 
         if len(results) == 0:
             raise Exception("This user does not exist")
@@ -146,7 +130,7 @@ def get_notes():
                 userid = data['userid']
 
                 query = "SELECT NoteID, Title, Body, Date, Edited FROM Notes WHERE UserID = '{}'".format(userid)
-                results = call_query(query)
+                results = db.run_query(query=query)
 
                 if len(results) == 0:
                     raise Exception("There are no notes yet")
@@ -187,7 +171,7 @@ def update_note():
 
                 query = "UPDATE Notes SET {} = '{}', Edited = '{}' WHERE Notes.NoteID = '{}'".\
                     format(field, value, edited, noteid)
-                call_query(query)
+                db.run_query(query=query)
 
                 msg = "Note updated"
                 stat = 200
@@ -226,7 +210,7 @@ def create_note():
 
                 query = "INSERT INTO Notes (NoteID, UserID, Body, Title, Date, Edited) " \
                         "VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(noteid, userid, value, title, date, date)
-                call_query(query)
+                db.run_query(query=query)
 
                 msg = "Note created"
                 stat = 201
@@ -265,7 +249,7 @@ def delete_note():
                 else:
                     raise Exception("At least one note should be selected")
 
-                call_query(query)
+                db.run_query(query=query)
 
                 msg = "Note deleted"
                 stat = 200
