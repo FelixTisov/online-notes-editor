@@ -67,6 +67,7 @@ def signup_user():
         query = "INSERT INTO Users (UserID, Email, Password, UserName) VALUES (UUID(), '{}', " \
                 "'{}', '{}')".format(email, password, username)
         db.run_query(query=query)
+        db.close_connection()
 
         msg = json.dumps("User created")
         stat = 201
@@ -93,6 +94,7 @@ def login_user():
 
         query = "SELECT UserID, Password FROM Users WHERE Email = '{}'".format(email)
         results = db.run_query(query=query)
+        db.close_connection()
 
         if len(results) == 0:
             raise Exception("This user does not exist")
@@ -131,6 +133,7 @@ def get_notes():
 
                 query = "SELECT NoteID, Title, Body, Date, Edited FROM Notes WHERE UserID = '{}'".format(userid)
                 results = db.run_query(query=query)
+                db.close_connection()
 
                 if len(results) == 0:
                     raise Exception("There are no notes yet")
@@ -172,6 +175,7 @@ def update_note():
                 query = "UPDATE Notes SET {} = '{}', Edited = '{}' WHERE Notes.NoteID = '{}'".\
                     format(field, value, edited, noteid)
                 db.run_query(query=query)
+                db.close_connection()
 
                 msg = "Note updated"
                 stat = 200
@@ -211,6 +215,7 @@ def create_note():
                 query = "INSERT INTO Notes (NoteID, UserID, Body, Title, Date, Edited) " \
                         "VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(noteid, userid, value, title, date, date)
                 db.run_query(query=query)
+                db.close_connection()
 
                 msg = "Note created"
                 stat = 201
@@ -250,6 +255,7 @@ def delete_note():
                     raise Exception("At least one note should be selected")
 
                 db.run_query(query=query)
+                db.close_connection()
 
                 msg = "Note deleted"
                 stat = 200
