@@ -6,11 +6,6 @@
             <div class="dot"></div>
             <div class="dot"></div>
           </CircleButton>
-          <!-- <div class="circle-button" @click="dropdownHandler">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-          </div> -->
         </div>
         <div v-if="isDropdown" class="dropdown_body">
             <div class="dropdown_body_drop-title">
@@ -70,8 +65,6 @@ export default defineComponent({
           this.currentSort = 'Alphabet'
           break
       }
-
-      // Передаем в родителя объект isSelected
       this.$emit('sortOptionChanged', option)
     }
   }

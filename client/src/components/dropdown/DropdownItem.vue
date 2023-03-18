@@ -9,11 +9,6 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'DropdownItem',
-  data () {
-    return {
-
-    }
-  },
   methods: {
     changeSort (option:string | undefined) {
       this.$emit('clickOption', option)
