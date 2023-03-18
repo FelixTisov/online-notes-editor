@@ -64,7 +64,6 @@ export default defineComponent({
               response.json().then((data) => {
                 const userID = data.userid
                 const authToken = data.token
-                console.log(authToken)
 
                 localStorage.setItem('userID', userID)
                 localStorage.setItem('authToken', authToken)

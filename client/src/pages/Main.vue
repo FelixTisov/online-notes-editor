@@ -168,7 +168,6 @@ export default defineComponent({
       currentIndex: 0 as number,
       isEmpty: false as boolean, // Отображение редактора
       isEdit: false as boolean, // Множественный выбор
-      // notesInEditList: [] as Array<number>, // Выбранные заметки
       notesInEditList: [] as Array<string>, // ID выбранных заметок
       search: '' as string, // Подстрока для поиска заметок
       hasChanged: false as boolean, // Заметка была изменена
@@ -229,7 +228,7 @@ export default defineComponent({
             console.error(error)
           })
       } catch (error) {
-        console.log(error)
+        console.error(error)
       }
     },
     // Добавить новую заметку
@@ -281,8 +280,6 @@ export default defineComponent({
         this.currentNote = this.allNotes[0]
         this.currentIndex = 0
         this.isEmpty = true
-
-        console.log(error)
       }
     },
     // Удалить заметку из БД
@@ -344,24 +341,12 @@ export default defineComponent({
               console.error(error)
             })
         } catch (error) {
-          console.log(error)
+          console.error(error)
         }
       }, 1000)
     },
 
     /* Методы для работы с заметками на клиенте */
-
-    // Генератор случайного текста
-    // async generateText () {
-    //   try {
-    //     const data = await fetch('https://hipsum.co/api/?sentences=25&type=hipster-centric&start-with-lorem=1')
-    //     const jsonData = await data.json()
-    //     const result = jsonData[0]
-    //     return result
-    //   } catch (error) {
-    //     return 'Template text'
-    //   }
-    // },
 
     // Открыть заметку
     setCurrentNote (index:number) {

@@ -71,9 +71,8 @@ export default defineComponent({
             console.error(error)
           })
       } catch (error) {
-        console.log(error)
+        console.error(error)
       }
-      // document.getElementById('auth-form').reset()
     }
   }
 })
@@ -110,7 +109,6 @@ body {
   height: 70px;
   margin-top: -10px;
   width: 100%;
-  // background-color: green;
 
   p {
     @extend %primary-font;
@@ -123,7 +121,6 @@ form {
   flex-direction: column;
   height: 330px;
   width: 100%;
-  // background-color: yellow;
 }
 
 input {
