@@ -173,4 +173,26 @@ input {
     cursor: pointer;
   }
 }
+
+/* Для мобильной версии */
+@media only screen
+  and (min-device-width: 320px)
+  and (max-device-width: 640px)
+  and (-webkit-min-device-pixel-ratio: 2)
+{
+
+  .signup-cont {
+    max-width: 640px;
+    width: 100%;
+    min-width: 320px;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  input {
+    max-width: 280px;
+    min-width: 280px;
+  }
+}
+
 </style>
