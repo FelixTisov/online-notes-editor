@@ -202,7 +202,7 @@ export default defineComponent({
         requestHeaders.set('Content-Type', 'application/json')
         requestHeaders.set('Authorization', token)
 
-        const request = new Request('http://localhost:5000/notes',
+        const request = new Request(`${process.env.VUE_APP_API_URL}/notes`,
           {
             method: 'POST',
             body: JSON.stringify({ userid: userID }),
@@ -252,7 +252,7 @@ export default defineComponent({
             requestHeaders.set('Content-Type', 'application/json')
             requestHeaders.set('Authorization', token)
 
-            const request = new Request('http://localhost:5000/notes/create',
+            const request = new Request(`${process.env.VUE_APP_API_URL}/notes/create`,
               {
                 method: 'POST',
                 body: JSON.stringify({ ...this.currentNote, userid: localStorage.getItem('userID') }),
@@ -291,7 +291,7 @@ export default defineComponent({
         requestHeaders.set('Content-Type', 'application/json')
         requestHeaders.set('Authorization', token)
 
-        const request = new Request('http://localhost:5000/notes/delete',
+        const request = new Request(`${process.env.VUE_APP_API_URL}/notes/delete`,
           {
             method: 'POST',
             body: JSON.stringify({ noteids: noteID }),
@@ -323,7 +323,7 @@ export default defineComponent({
           requestHeaders.set('Content-Type', 'application/json')
           requestHeaders.set('Authorization', token)
 
-          const request = new Request('http://localhost:5000/notes/update',
+          const request = new Request(`${process.env.VUE_APP_API_URL}/notes/update`,
             {
               method: 'POST',
               body: JSON.stringify({ field: field, value: value, noteid: this.currentNote.noteid, edited: this.currentNote.edited }),

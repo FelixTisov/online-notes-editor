@@ -50,7 +50,7 @@ export default defineComponent({
     // Авторизация пользователя
     async login () {
       try {
-        const request = new Request('http://localhost:5000/users/login',
+        const request = new Request(`${process.env.VUE_APP_API_URL}/users/login`,
           {
             method: 'POST',
             body: JSON.stringify({ ...this.form }),

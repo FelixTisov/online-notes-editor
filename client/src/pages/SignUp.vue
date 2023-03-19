@@ -51,7 +51,7 @@ export default defineComponent({
     // Регистрация пользователя
     async signup () {
       try {
-        const request = new Request('http://localhost:5000/users/signup',
+        const request = new Request(`${process.env.VUE_APP_API_URL}/users/signup`,
           {
             method: 'POST',
             body: JSON.stringify({ ...this.form }),
