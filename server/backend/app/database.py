@@ -3,7 +3,7 @@ import pymysql
 
 
 class Database:
-    def __init__(self, config):
+    def __init__(self):
         self.__host = app.config['DB_HOST']
         self.__username = app.config['DB_USER']
         self.__password = app.config['DB_PASSWORD']

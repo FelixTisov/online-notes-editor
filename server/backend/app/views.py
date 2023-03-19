@@ -6,10 +6,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 import time
-import requests
-from database import Database
+from .database import Database
 
-db = Database
+db = Database()
 
 
 # Создать токен аутентификации
@@ -45,13 +44,6 @@ def decode_auth_token(auth_token):
         return 'Token expired!'
     except jwt.InvalidTokenError:
         return 'Invalid token!'
-
-
-def generate_template_note():
-    res = requests.get('https://hipsum.co/?sentences=25&type=hipster-centric&start-with-lorem=1')
-    response = json.loads(res.text)
-    return response
-
 
 
 # регистрация пользователя
@@ -96,6 +88,7 @@ def login_user():
     msg = None
     token = None
     stat = None
+
     try:
         data = request.json
         email, password = data['email'], data['password']
@@ -103,9 +96,6 @@ def login_user():
         query = "SELECT UserID, Password FROM Users WHERE Email = '{}'".format(email)
         results = db.run_query(query=query)
         db.close_connection()
-
-        print('Response:')
-        print(generate_template_note())
 
         if len(results) == 0:
             raise Exception("This user does not exist")
