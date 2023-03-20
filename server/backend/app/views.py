@@ -7,12 +7,24 @@ import jwt
 import datetime
 import time
 from .database import Database
+import requests
 
 db = Database()
 
 
-# Создать токен аутентификации
+def note_generator():
+    """Генерация случайного текста для заметки-примера"""
+    url = 'https://hipsum.co/api/?type=hipster-centric&sentences=10'
+    response = requests.get(url)
+    data = response.json()
+    lorem = ''
+    for sentence in data:
+        lorem += sentence + ' '
+    return lorem
+
+
 def encode_auth_token(user_id, login_time):
+    """Генерация токена аутентификации"""
     try:
         payload = {
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30, seconds=0),
@@ -31,10 +43,10 @@ def encode_auth_token(user_id, login_time):
     except Exception as error:
         return error
 
-# Проверить токен
+
 def decode_auth_token(auth_token):
+    """Проверка токена аутентификации"""
     try:
-        # Отменить подтверждение срока действия
         payload = jwt.decode(auth_token, app.config['SECRET_KEY'], algorithms=['HS256'], options={'verify_exp': False})
         if 'data' in payload and 'id' in payload['data']:
             return payload
@@ -46,14 +58,17 @@ def decode_auth_token(auth_token):
         return 'Invalid token!'
 
 
-# регистрация пользователя
 @app.route('/users/signup', methods=['POST'])
 def signup_user():
+    """Регистрация нового пользователя"""
     msg = None
     stat = None
+    
     try:
         data = request.json
-        email, password, username = data['email'], data['password'], data['userName']
+        email, password, username, date = data['email'], data['password'], data['userName'], data['date']
+        userid = shortuuid.ShortUUID().random(length=12)
+        noteid = shortuuid.ShortUUID().random(length=16)  # для дефолтной заметки-примера
 
         if email == '':
             raise Exception("Email can not be empty!")
@@ -64,8 +79,16 @@ def signup_user():
 
         password = generate_password_hash(password, method='sha256')
 
-        query = "INSERT INTO Users (UserID, Email, Password, UserName) VALUES (UUID(), '{}', " \
-                "'{}', '{}')".format(email, password, username)
+        query = "INSERT INTO Users (UserID, Email, Password, UserName) VALUES ('{}', '{}', " \
+                "'{}', '{}')".format(userid, email, password, username)
+        db.run_query(query=query)
+        db.close_connection()
+
+        # Создание дефолтной заметки примера для нового пользователя
+        default_note = note_generator()
+
+        query = "INSERT INTO Notes (NoteID, UserID, Body, Title, Date, Edited) " \
+                "VALUES ('{}', '{}', '{}', 'Default note', '{}', '{}')".format(noteid, userid, default_note, date, date)
         db.run_query(query=query)
         db.close_connection()
 
@@ -81,9 +104,9 @@ def signup_user():
     return response
 
 
-# авторизация пользователя
 @app.route('/users/login', methods=['POST'])
 def login_user():
+    """Авторизация пользователя"""
     userid = None
     msg = None
     token = None
@@ -117,12 +140,13 @@ def login_user():
     return response
 
 
-# получение всех заметок пользователя
 @app.route('/notes', methods=['POST'])
 def get_notes():
+    """Получение всех заметок пользователя"""
     res = None
     msg = None
     stat = None
+
     try:
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
@@ -155,12 +179,12 @@ def get_notes():
     return response
 
 
-# обновление заметки
 @app.route('/notes/update', methods=['POST'])
 def update_note():
-    # res = None
+    """Обновление заметки"""
     msg = None
     stat = None
+
     try:
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
@@ -193,13 +217,13 @@ def update_note():
     return response
 
 
-# создание новой заметки
 @app.route('/notes/create', methods=['POST'])
 def create_note():
-    # res = None
+    """Создание новой заметки"""
     noteid = None
     msg = None
     stat = None
+
     try:
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
@@ -233,12 +257,12 @@ def create_note():
     return response
 
 
-# удаление заметки
 @app.route('/notes/delete', methods=['POST'])
 def delete_note():
+    """Удаление заметки"""
     msg = None
     stat = None
-    query = ''
+
     try:
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
