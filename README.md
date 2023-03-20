@@ -6,7 +6,15 @@ A simple note editor created via Vue3.js. It has basic functionality including: 
 - Vue3 
 - TypeScript
 - SCSS
+- Python
+- Flask
+- MySQL
 
 ## Start Locally
+### Client
 1. Install all the dependencies. Use: `npm install`
-2. Use `npm run serve` to start locally at localhost
+2. Use `npm start` to start at localhost:8080
+
+### Server
+1. Install all the dependencies. Use: `pip install -r requirements.txt`
+2. Use your IDE to start the project or `python ./backend/index.py` to start from a terminal at localhost:5000
