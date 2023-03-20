@@ -51,10 +51,11 @@ export default defineComponent({
     // Регистрация пользователя
     async signup () {
       try {
+        const date = this.getDate()
         const request = new Request(`${process.env.VUE_APP_API_URL}/users/signup`,
           {
             method: 'POST',
-            body: JSON.stringify({ ...this.form }),
+            body: JSON.stringify({ ...this.form, date: date }),
             headers: { 'content-type': 'application/json' }
           }
         )
@@ -73,6 +74,17 @@ export default defineComponent({
       } catch (error) {
         console.error(error)
       }
+    },
+    // Получить текущую дату
+    getDate () {
+      const currentDate = new Date()
+      const dd = String(currentDate.getDate()).padStart(2, '0')
+      const mm = String(currentDate.getMonth() + 1).padStart(2, '0')
+      const yy = currentDate.getFullYear().toString().slice(2, 4)
+      const hrs = String(currentDate.getHours()).padStart(2, '0')
+      const min = String(currentDate.getMinutes()).padStart(2, '0')
+      const crDate = dd + '.' + mm + '.' + yy + ' ' + hrs + ':' + min
+      return crDate
     }
   }
 })

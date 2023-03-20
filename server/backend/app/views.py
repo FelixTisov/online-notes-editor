@@ -63,7 +63,7 @@ def signup_user():
     """Регистрация нового пользователя"""
     msg = None
     stat = None
-    
+
     try:
         data = request.json
         email, password, username, date = data['email'], data['password'], data['userName'], data['date']
