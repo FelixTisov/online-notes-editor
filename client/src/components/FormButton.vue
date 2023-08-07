@@ -1,5 +1,5 @@
 <template>
-  <button>
+  <button type="submit">
     <slot></slot>
   </button>
 </template>
@@ -27,9 +27,22 @@ button {
     font-size: 22px;
     color: #fff;
 
-    &:hover {
+    &:hover, &:active {
         background: linear-gradient(90deg, #06D2FF 0%, #DB00FF 100%);
     }
+}
+
+/* Для мобильной версии */
+@media only screen
+  and (min-device-width: 320px)
+  and (max-device-width: 640px)
+  and (-webkit-min-device-pixel-ratio: 2)
+{
+  button {
+    &:hover {
+      background: linear-gradient(90deg, #DB00FF 0%, #06D2FF 100%);
+    }
+  }
 }
 
 </style>
